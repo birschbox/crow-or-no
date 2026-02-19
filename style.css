@@ -1,0 +1,176 @@
+/* ======================
+   FONT SETUP
+====================== */
+
+@font-face {
+    font-family: 'Hanson';
+    src: url('fonts/Hanson-Bold.woff2') format('woff2');
+    font-weight: bold;
+    font-style: normal;
+  }
+  
+  /* ======================
+     ROOT BRAND VARIABLES
+  ====================== */
+  
+  :root {
+    --black: #000000;
+    --white: #FFFFFF;
+    --accent: #D72C83;
+  }
+  
+  /* ======================
+     GLOBAL STYLES
+  ====================== */
+  
+  body {
+    margin: 0;
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px 0;
+    box-sizing: border-box;
+  }
+  
+  .container {
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+    background: #111;
+    padding: 40px 30px;
+    border-radius: 14px;
+    border: 1px solid #222;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* ======================
+     TYPOGRAPHY
+  ====================== */
+  
+  h1 {
+    font-family: 'Hanson', sans-serif;
+    font-size: 3rem;
+    letter-spacing: 1px;
+    margin-bottom: 0.25em;
+  }
+  
+  .subtitle {
+    opacity: 0.7;
+    margin-bottom: 2em;
+  }
+  
+  .question {
+    font-size: 1.5rem;
+    margin-bottom: 1.5em;
+    min-height: 60px;
+    font-weight: 500;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  /* Question fade animation */
+  .fade-out {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  
+  .fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* ======================
+     BUTTONS
+  ====================== */
+  
+  .buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 1.5em;
+  }
+  
+  .btn {
+    padding: 14px 28px;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    transition: 0.2s ease;
+    border: 2px solid var(--accent);
+    background: transparent;
+    color: var(--white);
+  }
+  
+  .btn:hover {
+    background: var(--accent);
+    color: var(--white);
+  }
+  
+  /* ======================
+     FEEDBACK
+  ====================== */
+  
+  .feedback {
+    margin: 1em 0;
+    font-weight: 700;
+    min-height: 24px;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .feedback.show {
+    opacity: 1;
+  }
+  
+  /* ======================
+     PROGRESS
+  ====================== */
+  
+  .progress {
+    opacity: 0.5;
+    font-size: 0.9rem;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  /* ======================
+     RESULTS ANIMATION
+  ====================== */
+  
+  #results {
+    animation: fadeResults 0.4s ease forwards;
+  }
+  
+  @keyframes fadeResults {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .media {
+    max-width: 100%;
+    border-radius: 10px;
+    margin-bottom: 1em;
+  }
+
+  .explanation {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-top: 0.5em;
+    min-height: 40px;
+  }
+  

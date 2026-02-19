@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crow or No?</title>
+  
+    <!-- Google Font: Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  
+<body>
+
+  <div class="container">
+    <h1>🐦‍⬛ Crow or No?</h1>
+    <p class="subtitle">Are you smarter than a bird?</p>
+
+    <div id="game">
+      <div id="question" class="question"></div>
+        <img id="questionImage" class="media hidden" />
+        <audio id="questionAudio" class="hidden" controls></audio>
+        <p id="explanation" class="explanation"></p>
+
+
+      <div class="buttons">
+        <button onclick="submitAnswer('crow')" class="btn crow">Crow</button>
+        <button onclick="submitAnswer('no')" class="btn no">No</button>
+      </div>
+
+      <div id="feedback" class="feedback"></div>
+      <div id="progress" class="progress"></div>
+    </div>
+
+    <div id="results" class="hidden">
+      <h2 id="scoreText"></h2>
+      <button onclick="restartGame()" class="btn restart">Play Again</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
