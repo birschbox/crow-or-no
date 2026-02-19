@@ -229,4 +229,157 @@
   .reveal-cta a:hover {
     text-decoration: underline;
   }
-  
+
+  /* ======================
+     TIME DISPLAY
+  ====================== */
+
+  .time-display {
+    font-size: 0.85rem;
+    opacity: 0.5;
+    margin: 0.25em 0 0.5em;
+    letter-spacing: 0.5px;
+  }
+
+  /* ======================
+     ASS ENTRY
+  ====================== */
+
+  .ass-entry {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 1em 0 0.25em;
+  }
+
+  .ass-input {
+    width: 64px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 6px;
+    color: var(--white);
+    padding: 8px 4px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .ass-input:focus {
+    border-color: var(--accent);
+  }
+
+  .ass-input.saved {
+    border-color: var(--accent);
+    opacity: 0.5;
+  }
+
+  .btn.ass-save {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+  }
+
+  .score-saved-msg {
+    font-size: 0.8rem;
+    color: var(--accent);
+    min-height: 18px;
+    margin: 0 0 0.5em;
+  }
+
+  /* ======================
+     LEADERBOARD TOGGLE
+  ====================== */
+
+  .btn.lb-toggle {
+    margin-top: 0.5em;
+    padding: 10px 18px;
+    font-size: 0.85rem;
+    border-color: #444;
+    color: #aaa;
+  }
+
+  .btn.lb-toggle:hover {
+    border-color: var(--accent);
+    background: transparent;
+    color: var(--white);
+  }
+
+  /* ======================
+     LEADERBOARD PANEL
+  ====================== */
+
+  .leaderboard-panel {
+    margin: 0.75em 0 0.5em;
+    border: 1px solid #222;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .leaderboard-list {
+    padding: 6px 0;
+  }
+
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .lb-row:last-child {
+    border-bottom: none;
+  }
+
+  .lb-row.lb-top {
+    background: #150a0d;
+  }
+
+  .lb-rank {
+    width: 18px;
+    text-align: center;
+    font-size: 0.75rem;
+    opacity: 0.4;
+    flex-shrink: 0;
+  }
+
+  .lb-top .lb-rank {
+    color: var(--accent);
+    opacity: 1;
+  }
+
+  .lb-name {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--accent);
+    flex-shrink: 0;
+    min-width: 40px;
+  }
+
+  .lb-score {
+    flex: 1;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  .lb-time {
+    font-size: 0.8rem;
+    opacity: 0.5;
+    font-family: 'Courier New', monospace;
+    flex-shrink: 0;
+  }
+
+  .lb-empty {
+    font-size: 0.85rem;
+    opacity: 0.4;
+    text-align: center;
+    padding: 16px 0;
+    margin: 0;
+  }

@@ -38,7 +38,20 @@
 
     <div id="results" class="hidden">
       <h2 id="scoreText"></h2>
+      <p id="timeDisplay" class="time-display hidden"></p>
       <p id="revealCta" class="reveal-cta hidden"></p>
+
+      <div class="ass-entry">
+        <input id="assInput" class="ass-input" type="text" maxlength="3" placeholder="ASS" autocomplete="off" spellcheck="false" />
+        <button id="saveScoreBtn" class="btn ass-save">Save Score</button>
+      </div>
+      <p id="scoreSavedMsg" class="score-saved-msg"></p>
+
+      <button id="leaderboardToggle" class="btn lb-toggle">🏆 High Scores</button>
+      <div id="leaderboardPanel" class="leaderboard-panel hidden">
+        <div id="leaderboardList" class="leaderboard-list"></div>
+      </div>
+
       <button onclick="restartGame()" class="btn restart">Play Again</button>
     </div>
 
