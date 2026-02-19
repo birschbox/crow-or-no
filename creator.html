@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crow or No? — Question Creator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* ======================
+       CREATOR OVERRIDES
+    ====================== */
+
+    body {
+      align-items: flex-start;
+      padding: 30px 0;
+    }
+
+    .creator-container {
+      max-width: 680px;
+      text-align: left;
+    }
+
+    /* Section headings */
+    .section-title {
+      font-family: 'Hanson', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+      text-transform: uppercase;
+      border-bottom: 1px solid #222;
+      padding-bottom: 8px;
+      margin: 28px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Field groups */
+    .field-group {
+      margin-bottom: 18px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.6;
+      margin-bottom: 6px;
+    }
+
+    /* Inputs and textareas */
+    .creator-input {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: var(--white);
+      font-family: 'Roboto', sans-serif;
+      font-size: 0.95rem;
+      padding: 10px 12px;
+      box-sizing: border-box;
+      resize: vertical;
+      transition: border-color 0.2s ease;
+    }
+
+    .creator-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    textarea.creator-input {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    /* Pill selector groups */
+    .type-selector {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .type-btn {
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: 2px solid #333;
+      background: transparent;
+      color: var(--white);
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .type-btn.active {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .type-btn:hover:not(.active) {
+      border-color: var(--accent);
+    }
+
+    /* Secondary button */
+    .btn.secondary {
+      border-color: #444;
+      color: #aaa;
+    }
+
+    .btn.secondary:hover {
+      background: #222;
+      color: var(--white);
+      border-color: #666;
+    }
+
+    /* Action row */
+    .creator-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    /* Form error message */
+    .form-error {
+      color: #e74c3c;
+      font-size: 0.85rem;
+      min-height: 20px;
+      margin-top: 8px;
+    }
+
+    /* Preview card */
+    .preview-card {
+      background: #0a0a0a;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 20px;
+      min-height: 80px;
+    }
+
+    .preview-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--accent);
+      font-size: 0.8rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .reveal-preview {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #222;
+    }
+
+    /* Question list */
+    .question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .question-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a1a1a;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: default;
+    }
+
+    .question-item.dragging {
+      opacity: 0.4;
+      border-style: dashed;
+      border-color: var(--accent);
+    }
+
+    .question-item.drag-over {
+      border-color: var(--accent);
+      background: #1f0a12;
+    }
+
+    .drag-handle {
+      cursor: grab;
+      opacity: 0.3;
+      font-size: 1rem;
+      padding: 0 2px;
+      user-select: none;
+      flex-shrink: 0;
+      letter-spacing: -1px;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .question-item-type {
+      font-size: 0.7rem;
+      opacity: 0.45;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      min-width: 38px;
+    }
+
+    .question-item-text {
+      flex: 1;
+      font-size: 0.88rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .question-item-answer {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .item-btn {
+      background: transparent;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #aaa;
+      cursor: pointer;
+      padding: 4px 9px;
+      font-size: 0.78rem;
+      font-family: 'Roboto', sans-serif;
+      transition: 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .item-btn:hover {
+      border-color: var(--accent);
+      color: var(--white);
+    }
+
+    .item-btn.delete:hover {
+      border-color: #e74c3c;
+      color: #e74c3c;
+    }
+
+    /* Count badge */
+    .count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 0.72rem;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    /* Code output */
+    .code-output {
+      margin-top: 14px;
+    }
+
+    .code-output pre {
+      background: #0a0a0a;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      color: #ccc;
+      font-family: 'Courier New', monospace;
+      white-space: pre;
+      max-height: 360px;
+      overflow-y: auto;
+      margin: 0 0 12px;
+    }
+
+    .copy-feedback {
+      font-size: 0.85rem;
+      color: var(--accent);
+      min-height: 20px;
+      margin-top: 8px;
+    }
+
+    .empty-state {
+      opacity: 0.35;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 20px 0;
+      margin: 0;
+    }
+
+    /* Instruction callout */
+    .callout {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      opacity: 0.8;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container creator-container">
+
+    <h1>🐦‍⬛ Creator</h1>
+    <p class="subtitle">Build your Crow or No? questions</p>
+
+    <!-- ==================== SECTION 1: BUILDER FORM ==================== -->
+    <h2 class="section-title">Add / Edit Question</h2>
+
+    <div class="field-group">
+      <label class="field-label">Question Type</label>
+      <div class="type-selector" id="typeSelector">
+        <button class="type-btn active" data-type="text">Text</button>
+        <button class="type-btn" data-type="image">Image</button>
+        <button class="type-btn" data-type="audio">Audio</button>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" id="contentLabel">Question Text</label>
+      <textarea id="contentInput" class="creator-input" rows="3"
+                placeholder="Enter the question or clue..."></textarea>
+      <input id="contentUrl" class="creator-input hidden" type="url"
+             placeholder="https://example.com/image.jpg" />
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Correct Answer</label>
+      <div class="type-selector" id="answerSelector">
+        <button class="type-btn" data-answer="crow">Crow</button>
+        <button class="type-btn" data-answer="no">No</button>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Explanation</label>
+      <textarea id="explanationInput" class="creator-input" rows="2"
+                placeholder="Shown to the player after they answer..."></textarea>
+    </div>
+
+    <div class="field-group hidden" id="revealSection">
+      <label class="field-label">Reveal Image URL <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <input id="revealImageInput" class="creator-input" type="url"
+             placeholder="https://example.com/reveal.jpg" />
+
+      <label class="field-label" style="margin-top:12px">Reveal Caption <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <input id="revealCaptionInput" class="creator-input" type="text"
+             placeholder="Caption shown below the reveal image" />
+    </div>
+
+    <div class="creator-actions">
+      <button class="btn" id="addQuestionBtn">Add to List</button>
+      <button class="btn secondary" id="clearFormBtn">Clear</button>
+    </div>
+    <p class="form-error" id="formError"></p>
+
+    <!-- ==================== SECTION 2: LIVE PREVIEW ==================== -->
+    <h2 class="section-title">Live Preview</h2>
+
+    <div class="preview-card">
+      <div id="previewContent" class="question" style="margin-bottom:0.5em;min-height:40px">Your question will appear here</div>
+      <img id="previewImage" class="media hidden" alt="Preview" />
+      <audio id="previewAudio" class="hidden" controls></audio>
+      <p id="previewExplanation" class="explanation" style="margin-top:0.5em"></p>
+      <div id="previewRevealBlock" class="reveal-preview hidden">
+        <img id="previewRevealImg" class="media" alt="Reveal preview" />
+        <p id="previewRevealCaption" class="explanation"></p>
+      </div>
+      <span class="preview-badge" id="previewBadge">Answer: —</span>
+    </div>
+
+    <!-- ==================== SECTION 3: QUESTION LIST ==================== -->
+    <h2 class="section-title">
+      Question List
+      <span class="count-badge" id="questionCount">0</span>
+    </h2>
+
+    <div id="questionList" class="question-list">
+      <p class="empty-state">No questions yet. Add one above.</p>
+    </div>
+
+    <!-- ==================== SECTION 4: CODE OUTPUT ==================== -->
+    <h2 class="section-title">Generated Code</h2>
+
+    <div class="callout">
+      Click <strong>Generate Code</strong>, then copy and paste the output into <code>script.js</code>,
+      replacing the entire <code>const questions = [...]</code> block at the top of the file.
+    </div>
+
+    <button class="btn" id="generateBtn">Generate Code</button>
+
+    <div class="code-output hidden" id="codeOutput">
+      <pre id="codePre"></pre>
+      <button class="btn" id="copyBtn">Copy to Clipboard</button>
+      <p class="copy-feedback" id="copyFeedback"></p>
+    </div>
+
+  </div>
+
+  <script src="creator.js"></script>
+</body>
+</html>

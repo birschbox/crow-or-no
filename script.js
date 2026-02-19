@@ -33,6 +33,8 @@ const gameEl = document.getElementById("game");
 const resultsEl = document.getElementById("results");
 const scoreTextEl = document.getElementById("scoreText");
 const answerButtons = document.querySelectorAll(".buttons .btn");
+const revealImageEl   = document.getElementById("revealImage");
+const revealCaptionEl = document.getElementById("revealCaption");
 
 let shareButton;
 
@@ -44,6 +46,10 @@ function loadQuestion() {
   audioEl.classList.add("hidden");
   explanationEl.textContent = "";
   feedbackEl.textContent = "";
+  revealImageEl.classList.add("hidden");
+  revealImageEl.src = "";
+  revealCaptionEl.textContent = "";
+  revealCaptionEl.classList.add("hidden");
 
   questionEl.textContent = "";
   questionEl.classList.remove("fade-in");
@@ -91,6 +97,16 @@ function submitAnswer(answer) {
   }
 
   explanationEl.textContent = q.explanation;
+
+  if (q.revealImage) {
+    revealImageEl.src = q.revealImage;
+    revealImageEl.classList.remove("hidden");
+  }
+  if (q.revealCaption) {
+    revealCaptionEl.textContent = q.revealCaption;
+    revealCaptionEl.classList.remove("hidden");
+  }
+
   feedbackEl.classList.add("show");
 
   setTimeout(() => {
