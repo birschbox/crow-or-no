@@ -175,6 +175,21 @@
   }
 
   /* ======================
+     ANSWER BUTTON STATES
+  ====================== */
+
+  .btn.correct {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--white);
+  }
+
+  .btn.wrong {
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  /* ======================
      NEXT BUTTON
   ====================== */
 

@@ -124,11 +124,29 @@ function setButtonsDisabled(disabled) {
   answerButtons.forEach(btn => btn.disabled = disabled);
 }
 
+function highlightAnswer(correctAnswer) {
+  answerButtons.forEach(btn => {
+    const btnAnswer = btn.getAttribute("onclick").includes("'crow'") ? "crow" : "no";
+    if (btnAnswer === correctAnswer) {
+      btn.classList.add("correct");
+    } else {
+      btn.classList.add("wrong");
+    }
+  });
+}
+
+function resetAnswerButtons() {
+  answerButtons.forEach(btn => {
+    btn.classList.remove("correct", "wrong");
+  });
+}
+
 function submitAnswer(answer) {
   const q = activeQuestions[currentQuestion];
   const correct = q.answer;
 
   setButtonsDisabled(true);
+  highlightAnswer(correct);
 
   if (answer === correct) {
     score++;
@@ -158,6 +176,7 @@ function advanceQuestion() {
   nextBtn.classList.add("hidden");
   currentQuestion++;
   setButtonsDisabled(false);
+  resetAnswerButtons();
 
   if (currentQuestion < activeQuestions.length) {
     loadQuestion();
@@ -266,6 +285,7 @@ function restartGame() {
   resultsEl.classList.add("hidden");
   revealCtaEl.classList.add("hidden");
   revealCtaEl.classList.remove("show");
+  resetAnswerButtons();
   gameEl.classList.remove("hidden");
 
   loadQuestion();
