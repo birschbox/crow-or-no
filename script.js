@@ -42,7 +42,8 @@ const scoreTextEl = document.getElementById("scoreText");
 const answerButtons = document.querySelectorAll(".buttons .btn");
 const revealImageEl   = document.getElementById("revealImage");
 const revealCaptionEl = document.getElementById("revealCaption");
-const endedEl  = document.getElementById("ended");
+const endedEl    = document.getElementById("ended");
+const revealCtaEl = document.getElementById("revealCta");
 
 let shareButton;
 
@@ -161,15 +162,58 @@ function submitAnswer(answer) {
   }, 1800);
 }
 
+const scoreTiers = [
+  {
+    score: 0,
+    label: "Zero crows. Not even a pigeon.",
+    cta: 'Maybe <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> can show you the way. 🐦‍⬛'
+  },
+  {
+    score: 1,
+    label: "You spotted one crow. A fluke.",
+    cta: 'There\'s more to learn. Start at <a href="https://mplscitysc.com" target="_blank">mplscitysc.com</a>.'
+  },
+  {
+    score: 2,
+    label: "You know a crow exists. Progress.",
+    cta: 'Keep going. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> rewards curiosity.'
+  },
+  {
+    score: 3,
+    label: "Crow-curious. We respect it.",
+    cta: 'Want to know more? The Crows play in Minneapolis. <a href="https://mplscitysc.com" target="_blank">mplscitysc.com</a>'
+  },
+  {
+    score: 4,
+    label: "Almost crow-certified.",
+    cta: 'One more thing to learn: <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a>. See you April 1st.'
+  },
+  {
+    score: 5,
+    label: "Certified Crow Expert 🐦‍⬛",
+    cta: 'You were made for this. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> awaits.'
+  }
+];
+
 function showResults() {
   gameEl.classList.add("hidden");
   resultsEl.classList.remove("hidden");
 
-  scoreTextEl.textContent = `${score} / ${activeQuestions.length}`;
+  const tier = scoreTiers.find(t => t.score === score) || scoreTiers[scoreTiers.length - 1];
 
-  if (score === activeQuestions.length) {
-    scoreTextEl.textContent += " — Certified Crow Expert 🐦‍⬛";
-  }
+  scoreTextEl.textContent = `${score} / ${activeQuestions.length} — ${tier.label}`;
+
+  // Reset and hide CTA, then fade it in after a delay
+  revealCtaEl.classList.add("hidden");
+  revealCtaEl.classList.remove("show");
+  revealCtaEl.innerHTML = tier.cta;
+
+  setTimeout(() => {
+    revealCtaEl.classList.remove("hidden");
+    // Force reflow so the transition fires
+    void revealCtaEl.offsetWidth;
+    revealCtaEl.classList.add("show");
+  }, 1800);
 
   createShareButton();
 }
@@ -216,6 +260,8 @@ function restartGame() {
   }
 
   resultsEl.classList.add("hidden");
+  revealCtaEl.classList.add("hidden");
+  revealCtaEl.classList.remove("show");
   gameEl.classList.remove("hidden");
 
   loadQuestion();
