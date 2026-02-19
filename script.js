@@ -42,7 +42,6 @@ const scoreTextEl = document.getElementById("scoreText");
 const answerButtons = document.querySelectorAll(".buttons .btn");
 const revealImageEl   = document.getElementById("revealImage");
 const revealCaptionEl = document.getElementById("revealCaption");
-const notYetEl = document.getElementById("notYet");
 const endedEl  = document.getElementById("ended");
 
 let shareButton;
@@ -54,12 +53,6 @@ function getTodayString() {
 
 function initGame() {
   const today = getTodayString();
-
-  if (today < config.startDate) {
-    gameEl.classList.add("hidden");
-    notYetEl.classList.remove("hidden");
-    return;
-  }
 
   if (today > config.endDate) {
     gameEl.classList.add("hidden");
