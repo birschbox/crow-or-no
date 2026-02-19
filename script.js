@@ -51,8 +51,10 @@ const revealCtaEl = document.getElementById("revealCta");
 const nextBtn     = document.getElementById("nextBtn");
 const timeDisplayEl   = document.getElementById("timeDisplay");
 const assInputEl      = document.getElementById("assInput");
-const saveScoreBtn    = document.getElementById("saveScoreBtn");
-const scoreSavedMsgEl = document.getElementById("scoreSavedMsg");
+const saveScoreTrigger = document.getElementById("saveScoreTrigger");
+const assEntryEl       = document.getElementById("assEntry");
+const saveScoreBtn     = document.getElementById("saveScoreBtn");
+const scoreSavedMsgEl  = document.getElementById("scoreSavedMsg");
 const leaderboardToggleBtn = document.getElementById("leaderboardToggle");
 const leaderboardPanelEl   = document.getElementById("leaderboardPanel");
 const leaderboardListEl    = document.getElementById("leaderboardList");
@@ -355,6 +357,11 @@ function showResults() {
   }, 1800);
 
   // Reset ASS input section
+  if (saveScoreTrigger) {
+    saveScoreTrigger.classList.remove("hidden");
+    saveScoreTrigger.disabled = false;
+  }
+  if (assEntryEl) assEntryEl.classList.add("hidden");
   if (assInputEl) {
     assInputEl.value = "";
     assInputEl.classList.remove("saved");
@@ -471,11 +478,19 @@ function initAssInput() {
   });
 }
 
+function revealAssEntry() {
+  if (!saveScoreTrigger || !assEntryEl) return;
+  saveScoreTrigger.classList.add("hidden");
+  assInputEl.value = "ASS";
+  assEntryEl.classList.remove("hidden");
+  assInputEl.focus();
+}
+
 function handleSaveScore() {
   if (!saveScoreBtn) return;
   addLeaderboardEntry("ASS", score, elapsedSeconds);
   saveScoreBtn.disabled = true;
-  if (assInputEl) assInputEl.classList.add("saved");
+  if (assEntryEl) assEntryEl.classList.add("hidden");
   if (scoreSavedMsgEl) scoreSavedMsgEl.textContent = "Score saved! 🐦‍⬛";
 
   // Re-render leaderboard if it's open
@@ -529,6 +544,7 @@ function restartGame() {
 
 nextBtn.addEventListener("click", advanceQuestion);
 
+if (saveScoreTrigger) saveScoreTrigger.addEventListener("click", revealAssEntry);
 if (saveScoreBtn) saveScoreBtn.addEventListener("click", handleSaveScore);
 if (leaderboardToggleBtn) leaderboardToggleBtn.addEventListener("click", toggleLeaderboard);
 
