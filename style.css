@@ -175,6 +175,22 @@
   }
 
   /* ======================
+     NEXT BUTTON
+  ====================== */
+
+  .btn.next {
+    margin-top: 1em;
+  }
+
+  .btn.next::after {
+    content: 'Keep Going';
+  }
+
+  .btn.next:hover::after {
+    content: 'Keep Crowing';
+  }
+
+  /* ======================
      RESULTS CTA
   ====================== */
 

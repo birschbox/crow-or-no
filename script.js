@@ -42,8 +42,9 @@ const scoreTextEl = document.getElementById("scoreText");
 const answerButtons = document.querySelectorAll(".buttons .btn");
 const revealImageEl   = document.getElementById("revealImage");
 const revealCaptionEl = document.getElementById("revealCaption");
-const endedEl    = document.getElementById("ended");
+const endedEl     = document.getElementById("ended");
 const revealCtaEl = document.getElementById("revealCta");
+const nextBtn     = document.getElementById("nextBtn");
 
 let shareButton;
 
@@ -87,6 +88,7 @@ function loadQuestion() {
   audioEl.classList.add("hidden");
   explanationEl.textContent = "";
   feedbackEl.textContent = "";
+  nextBtn.classList.add("hidden");
   revealImageEl.classList.add("hidden");
   revealImageEl.src = "";
   revealCaptionEl.textContent = "";
@@ -149,17 +151,19 @@ function submitAnswer(answer) {
   }
 
   feedbackEl.classList.add("show");
+  nextBtn.classList.remove("hidden");
+}
 
-  setTimeout(() => {
-    currentQuestion++;
-    setButtonsDisabled(false);
+function advanceQuestion() {
+  nextBtn.classList.add("hidden");
+  currentQuestion++;
+  setButtonsDisabled(false);
 
-    if (currentQuestion < activeQuestions.length) {
-      loadQuestion();
-    } else {
-      showResults();
-    }
-  }, 1800);
+  if (currentQuestion < activeQuestions.length) {
+    loadQuestion();
+  } else {
+    showResults();
+  }
 }
 
 const scoreTiers = [
@@ -267,8 +271,15 @@ function restartGame() {
   loadQuestion();
 }
 
+nextBtn.addEventListener("click", advanceQuestion);
+
 document.addEventListener("keydown", (e) => {
   if (gameEl.classList.contains("hidden")) return;
+  // After answering, Space/Enter advances
+  if (!nextBtn.classList.contains("hidden")) {
+    if (e.key === " " || e.key === "Enter") advanceQuestion();
+    return;
+  }
   if (answerButtons[0].disabled) return;
   if (e.key === "c" || e.key === "C") submitAnswer("crow");
   if (e.key === "n" || e.key === "N") submitAnswer("no");
