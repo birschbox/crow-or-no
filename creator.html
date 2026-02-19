@@ -358,6 +358,22 @@
                 placeholder="Shown to the player after they answer..."></textarea>
     </div>
 
+    <div class="field-group">
+      <label class="field-label">Status</label>
+      <div class="type-selector" id="statusSelector">
+        <button class="type-btn active" data-status="active">Active</button>
+        <button class="type-btn" data-status="backlog">Backlog</button>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">
+        Assign to Date
+        <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span>
+      </label>
+      <input id="dateInput" class="creator-input" type="date" />
+    </div>
+
     <div class="field-group hidden" id="revealSection">
       <label class="field-label">Reveal Image URL <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
       <input id="revealImageInput" class="creator-input" type="url"

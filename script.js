@@ -1,3 +1,9 @@
+const config = {
+  startDate:       "2026-04-01",
+  endDate:         "2026-04-08",
+  questionsPerDay: 5
+};
+
 const questions = [
   {
     type: "text",
@@ -22,6 +28,7 @@ const questions = [
 let currentQuestion = 0;
 let score = 0;
 let resultsGrid = [];
+let activeQuestions = [];
 
 const questionEl = document.getElementById("question");
 const imageEl = document.getElementById("questionImage");
@@ -35,11 +42,51 @@ const scoreTextEl = document.getElementById("scoreText");
 const answerButtons = document.querySelectorAll(".buttons .btn");
 const revealImageEl   = document.getElementById("revealImage");
 const revealCaptionEl = document.getElementById("revealCaption");
+const notYetEl = document.getElementById("notYet");
+const endedEl  = document.getElementById("ended");
 
 let shareButton;
 
+function getTodayString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function initGame() {
+  const today = getTodayString();
+
+  if (today < config.startDate) {
+    gameEl.classList.add("hidden");
+    notYetEl.classList.remove("hidden");
+    return;
+  }
+
+  if (today > config.endDate) {
+    gameEl.classList.add("hidden");
+    endedEl.classList.remove("hidden");
+    return;
+  }
+
+  // Filter: skip backlog; skip date-assigned questions that don't match today
+  const pool = questions.filter(q => {
+    if (q.status === "backlog") return false;
+    if (q.date && q.date !== today) return false;
+    return true;
+  });
+
+  activeQuestions = pool.slice(0, config.questionsPerDay);
+
+  if (activeQuestions.length === 0) {
+    gameEl.classList.add("hidden");
+    endedEl.classList.remove("hidden");
+    return;
+  }
+
+  loadQuestion();
+}
+
 function loadQuestion() {
-  const q = questions[currentQuestion];
+  const q = activeQuestions[currentQuestion];
 
   // Reset media
   imageEl.classList.add("hidden");
@@ -70,7 +117,7 @@ function loadQuestion() {
       audioEl.classList.remove("hidden");
     }
 
-    progressEl.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+    progressEl.textContent = `Question ${currentQuestion + 1} of ${activeQuestions.length}`;
 
     questionEl.classList.remove("fade-out");
     questionEl.classList.add("fade-in");
@@ -82,7 +129,7 @@ function setButtonsDisabled(disabled) {
 }
 
 function submitAnswer(answer) {
-  const q = questions[currentQuestion];
+  const q = activeQuestions[currentQuestion];
   const correct = q.answer;
 
   setButtonsDisabled(true);
@@ -113,21 +160,21 @@ function submitAnswer(answer) {
     currentQuestion++;
     setButtonsDisabled(false);
 
-    if (currentQuestion < questions.length) {
+    if (currentQuestion < activeQuestions.length) {
       loadQuestion();
     } else {
       showResults();
     }
-  }, 1800); // longer to allow reading explanation
+  }, 1800);
 }
 
 function showResults() {
   gameEl.classList.add("hidden");
   resultsEl.classList.remove("hidden");
 
-  scoreTextEl.textContent = `${score} / ${questions.length}`;
+  scoreTextEl.textContent = `${score} / ${activeQuestions.length}`;
 
-  if (score === questions.length) {
+  if (score === activeQuestions.length) {
     scoreTextEl.textContent += " — Certified Crow Expert 🐦‍⬛";
   }
 
@@ -136,7 +183,7 @@ function showResults() {
 
 function createShareButton() {
   const shareText = `Crow or No? 🐦‍⬛
-${score}/${questions.length}
+${score}/${activeQuestions.length}
 ${resultsGrid.join("")}
 
 Do you know crow?`;
@@ -189,4 +236,4 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "n" || e.key === "N") submitAnswer("no");
 });
 
-loadQuestion();
+initGame();

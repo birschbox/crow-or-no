@@ -6,6 +6,7 @@ let questions    = [];   // in-memory question list
 let editingIndex = -1;   // -1 = adding new; >= 0 = editing existing
 let currentType  = 'text';
 let currentAnswer = null;
+let currentStatus = 'active';
 let dragSrcIndex = null;
 
 // ======================
@@ -41,6 +42,8 @@ const codeOutput    = document.getElementById('codeOutput');
 const codePre       = document.getElementById('codePre');
 const copyBtn       = document.getElementById('copyBtn');
 const copyFeedback  = document.getElementById('copyFeedback');
+const statusSelector = document.getElementById('statusSelector');
+const dateInput      = document.getElementById('dateInput');
 
 // ======================
 //  TYPE SELECTOR
@@ -96,6 +99,20 @@ function initAnswerSelector() {
       btn.classList.add('active');
       currentAnswer = btn.dataset.answer;
       updatePreview();
+    });
+  });
+}
+
+// ======================
+//  STATUS SELECTOR
+// ======================
+
+function initStatusSelector() {
+  statusSelector.querySelectorAll('.type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      statusSelector.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentStatus = btn.dataset.status;
     });
   });
 }
@@ -200,9 +217,13 @@ function buildQuestionObject() {
 
   const revealImg = revealImageInput.value.trim();
   const revealCap = revealCaptionInput.value.trim();
+  const dateVal   = dateInput.value.trim();
 
   if (revealImg) obj.revealImage   = revealImg;
   if (revealCap) obj.revealCaption = revealCap;
+
+  obj.status = currentStatus;
+  if (dateVal) obj.date = dateVal;
 
   return obj;
 }
@@ -248,11 +269,16 @@ function clearForm() {
 
   answerSelector.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
 
+  currentStatus = 'active';
+  statusSelector.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  statusSelector.querySelector('[data-status="active"]').classList.add('active');
+
   contentInput.value       = '';
   contentUrl.value         = '';
   explanationInput.value   = '';
   revealImageInput.value   = '';
   revealCaptionInput.value = '';
+  dateInput.value          = '';
 
   addQuestionBtn.textContent = 'Add to List';
 
@@ -291,10 +317,16 @@ function loadForEditing(index) {
     b.classList.toggle('active', b.dataset.answer === q.answer);
   });
 
-  // Explanation & reveal
+  // Explanation, reveal & scheduling
   explanationInput.value   = q.explanation;
   revealImageInput.value   = q.revealImage   || '';
   revealCaptionInput.value = q.revealCaption || '';
+
+  currentStatus = q.status || 'active';
+  statusSelector.querySelectorAll('.type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.status === currentStatus);
+  });
+  dateInput.value = q.date || '';
 
   addQuestionBtn.textContent = 'Update Question';
   clearFormError();
@@ -350,11 +382,15 @@ function renderQuestionList() {
       ? q.content.slice(0, 55) + '…'
       : q.content;
 
+    const statusLabel = (q.status || 'active');
+    const dateLabel   = q.date ? ` · ${q.date}` : '';
+
     item.innerHTML = `
       <span class="drag-handle" title="Drag to reorder">⠿</span>
       <span class="question-item-type">${q.type}</span>
       <span class="question-item-text">${escapeHtml(preview)}</span>
       <span class="question-item-answer">${q.answer.toUpperCase()}</span>
+      <span class="question-item-type">${statusLabel}${dateLabel}</span>
       <button class="item-btn edit-btn" data-index="${i}">Edit</button>
       <button class="item-btn delete delete-btn" data-index="${i}">Delete</button>
     `;
@@ -437,23 +473,29 @@ function generateCode() {
   const lines = ['const questions = ['];
 
   questions.forEach((q, i) => {
-    const isLast   = i === questions.length - 1;
-    const hasReveal = q.revealImage || q.revealCaption;
+    const isLast    = i === questions.length - 1;
+    const hasReveal = !!(q.revealImage || q.revealCaption);
+    const hasDate   = !!q.date;
+    // status always present; date, revealImage, revealCaption are optional
+    const hasAfterExplanation = hasReveal || true; // status always follows
 
     lines.push('  {');
     lines.push(`    type: ${jsString(q.type)},`);
     lines.push(`    content: ${jsString(q.content)},`);
     lines.push(`    answer: ${jsString(q.answer)},`);
-
-    // explanation: trailing comma only if reveal fields follow
-    lines.push(`    explanation: ${jsString(q.explanation)}${hasReveal ? ',' : ''}`);
+    lines.push(`    explanation: ${jsString(q.explanation)},`);
 
     if (q.revealImage) {
       const hasCaption = !!q.revealCaption;
-      lines.push(`    revealImage: ${jsString(q.revealImage)}${hasCaption ? ',' : ''}`);
+      lines.push(`    revealImage: ${jsString(q.revealImage)}${hasCaption ? ',' : ','}`);
     }
     if (q.revealCaption) {
-      lines.push(`    revealCaption: ${jsString(q.revealCaption)}`);
+      lines.push(`    revealCaption: ${jsString(q.revealCaption)},`);
+    }
+
+    lines.push(`    status: ${jsString(q.status || 'active')}${hasDate ? ',' : ''}`);
+    if (hasDate) {
+      lines.push(`    date: ${jsString(q.date)}`);
     }
 
     lines.push('  }' + (isLast ? '' : ','));
@@ -508,6 +550,7 @@ function showCopyFeedback() {
 function init() {
   initTypeSelector();
   initAnswerSelector();
+  initStatusSelector();
   initLivePreview();
 
   addQuestionBtn.addEventListener('click', handleAddOrUpdate);
