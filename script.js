@@ -175,8 +175,7 @@ function showResults() {
 }
 
 function createShareButton() {
-  const shareText = `Crow or No? 🐦‍⬛
-${score}/${activeQuestions.length}
+  const shareText = `🐦‍⬛ ${score}/${activeQuestions.length}
 ${resultsGrid.join("")}
 
 Do you know crow?`;
