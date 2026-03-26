@@ -343,6 +343,30 @@
                 placeholder="Enter the question or clue..."></textarea>
       <input id="contentUrl" class="creator-input hidden" type="url"
              placeholder="https://example.com/image.jpg" />
+      <div id="zoomRow" class="hidden field-group" style="margin-top:14px;padding:12px 14px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:0">
+          <input type="checkbox" id="zoomRevealToggle" style="width:auto;cursor:pointer" />
+          <label class="field-label" style="margin:0;cursor:pointer" for="zoomRevealToggle">Zoom Reveal — start zoomed in, reveal on answer</label>
+        </div>
+        <div id="zoomOptions" class="hidden" style="margin-top:12px">
+          <div style="display:flex;gap:10px;margin-bottom:8px">
+            <div style="flex:1">
+              <label class="field-label">Zoom Level (×)</label>
+              <input id="zoomLevelInput" class="creator-input" type="number" min="2" max="30" value="12" placeholder="12" />
+            </div>
+            <div style="flex:1">
+              <label class="field-label">Origin X (%)</label>
+              <input id="zoomOriginXInput" class="creator-input" type="number" min="0" max="100" value="50" placeholder="50" />
+            </div>
+            <div style="flex:1">
+              <label class="field-label">Origin Y (%)</label>
+              <input id="zoomOriginYInput" class="creator-input" type="number" min="0" max="100" value="50" placeholder="50" />
+            </div>
+          </div>
+          <p style="font-size:0.75rem;opacity:0.45;margin:0">💡 Click the preview image to set the zoom origin point automatically.</p>
+        </div>
+      </div>
+
       <div id="startSecondsRow" class="hidden" style="margin-top:10px">
         <label class="field-label">Start at (seconds) <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
         <input id="startSecondsInput" class="creator-input" type="number" min="0" placeholder="0" />

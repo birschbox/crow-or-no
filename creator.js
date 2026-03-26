@@ -103,6 +103,12 @@ const contentFileEl    = document.getElementById('contentFile');
 const fileUploadRow    = document.getElementById('fileUploadRow');
 const startSecondsRow  = document.getElementById('startSecondsRow');
 const startSecondsInput = document.getElementById('startSecondsInput');
+const zoomRow          = document.getElementById('zoomRow');
+const zoomRevealToggle = document.getElementById('zoomRevealToggle');
+const zoomOptions      = document.getElementById('zoomOptions');
+const zoomLevelInput   = document.getElementById('zoomLevelInput');
+const zoomOriginXInput = document.getElementById('zoomOriginXInput');
+const zoomOriginYInput = document.getElementById('zoomOriginYInput');
 const messageListEl  = document.getElementById('messageList');
 const messageInputEl = document.getElementById('messageInput');
 const addMessageBtn  = document.getElementById('addMessageBtn');
@@ -135,6 +141,7 @@ function updateContentField() {
   contentUrl.classList.add('hidden');
   fileUploadRow.classList.add('hidden');
   startSecondsRow.classList.add('hidden');
+  zoomRow.classList.add('hidden');
 
   if (currentType === 'text') {
     contentInput.classList.remove('hidden');
@@ -142,6 +149,7 @@ function updateContentField() {
   } else if (currentType === 'image') {
     contentUrl.classList.remove('hidden');
     fileUploadRow.classList.remove('hidden');
+    zoomRow.classList.remove('hidden');
     contentFileEl.accept = 'image/*';
     contentLabel.textContent = 'Image URL';
     contentUrl.placeholder = 'https://example.com/image.jpg';
@@ -157,6 +165,29 @@ function updateContentField() {
     contentLabel.textContent = 'YouTube URL';
     contentUrl.placeholder = 'https://www.youtube.com/watch?v=...';
   }
+}
+
+// ======================
+//  ZOOM
+// ======================
+
+function initZoom() {
+  zoomRevealToggle.addEventListener('change', () => {
+    zoomOptions.classList.toggle('hidden', !zoomRevealToggle.checked);
+  });
+
+  [zoomLevelInput, zoomOriginXInput, zoomOriginYInput].forEach(el =>
+    el.addEventListener('input', updatePreview)
+  );
+
+  // Click preview image to set zoom origin
+  previewImage.addEventListener('click', (e) => {
+    if (currentType !== 'image' || !zoomRevealToggle.checked) return;
+    const rect = previewImage.getBoundingClientRect();
+    zoomOriginXInput.value = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+    zoomOriginYInput.value = Math.round(((e.clientY - rect.top)  / rect.height) * 100);
+    updatePreview();
+  });
 }
 
 // ======================
@@ -241,6 +272,14 @@ function updatePreview() {
     if (content) {
       previewImage.src = content;
       previewImage.classList.remove('hidden');
+      if (zoomRevealToggle.checked) {
+        previewImage.style.cursor = 'crosshair';
+        const x = zoomOriginXInput.value || 50;
+        const y = zoomOriginYInput.value || 50;
+        previewExplanation.textContent = `Zoom origin: ${x}%, ${y}% — click image to reposition`;
+      } else {
+        previewImage.style.cursor = '';
+      }
     } else {
       previewContent.textContent = 'Enter an image URL above to preview';
     }
@@ -333,6 +372,13 @@ function buildQuestionObject() {
     if (secs > 0) obj.startSeconds = secs;
   }
 
+  if (currentType === 'image' && zoomRevealToggle.checked) {
+    obj.zoomReveal   = true;
+    obj.zoomLevel    = parseInt(zoomLevelInput.value, 10) || 12;
+    obj.zoomOriginX  = parseInt(zoomOriginXInput.value, 10) ?? 50;
+    obj.zoomOriginY  = parseInt(zoomOriginYInput.value, 10) ?? 50;
+  }
+
   obj.status = currentStatus;
   if (dateVal) obj.date = dateVal;
 
@@ -392,6 +438,11 @@ function clearForm() {
   revealCaptionInput.value = '';
   dateInput.value          = '';
   startSecondsInput.value  = '';
+  zoomRevealToggle.checked = false;
+  zoomOptions.classList.add('hidden');
+  zoomLevelInput.value   = '12';
+  zoomOriginXInput.value = '50';
+  zoomOriginYInput.value = '50';
 
   addQuestionBtn.textContent = 'Add to List';
 
@@ -435,6 +486,11 @@ function loadForEditing(index) {
   revealImageInput.value   = q.revealImage   || '';
   revealCaptionInput.value = q.revealCaption || '';
   startSecondsInput.value  = q.startSeconds  || '';
+  zoomRevealToggle.checked = !!q.zoomReveal;
+  zoomOptions.classList.toggle('hidden', !q.zoomReveal);
+  zoomLevelInput.value   = q.zoomLevel   ?? 12;
+  zoomOriginXInput.value = q.zoomOriginX ?? 50;
+  zoomOriginYInput.value = q.zoomOriginY ?? 50;
 
   currentStatus = q.status || 'active';
   statusSelector.querySelectorAll('.type-btn').forEach(b => {
@@ -733,6 +789,7 @@ function init() {
   // Load any previously saved data
   loadQuestionsFromStorage();
   loadMessagesFromStorage();
+  initZoom();
   initFileUpload();
 
   // Set initial field/visibility state

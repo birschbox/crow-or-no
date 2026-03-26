@@ -82,6 +82,8 @@ const ytContainerEl        = document.getElementById("ytContainer");
 const ytPlayerEl           = document.getElementById("ytPlayer");
 const ytCoverEl            = document.getElementById("ytCover");
 const ytPlayBtnEl          = document.getElementById("ytPlayBtn");
+const zoomContainerEl      = document.getElementById("zoomContainer");
+const zoomImageEl          = document.getElementById("zoomImage");
 
 let shareButton;
 
@@ -224,6 +226,9 @@ function loadQuestion() {
   imageEl.classList.add("hidden");
   audioEl.classList.add("hidden");
   resetYouTube();
+  zoomContainerEl.classList.add("hidden");
+  zoomImageEl.src = "";
+  zoomImageEl.classList.remove("revealed");
   explanationEl.textContent = "";
   feedbackEl.textContent = "";
   feedbackEl.classList.remove("show");
@@ -243,8 +248,16 @@ function loadQuestion() {
     }
 
     if (q.type === "image") {
-      imageEl.src = q.content;
-      imageEl.classList.remove("hidden");
+      if (q.zoomReveal) {
+        zoomContainerEl.style.setProperty("--zoom-x", (q.zoomOriginX ?? 50) + "%");
+        zoomContainerEl.style.setProperty("--zoom-y", (q.zoomOriginY ?? 50) + "%");
+        zoomContainerEl.style.setProperty("--zoom-level", q.zoomLevel ?? 12);
+        zoomImageEl.src = q.content;
+        zoomContainerEl.classList.remove("hidden");
+      } else {
+        imageEl.src = q.content;
+        imageEl.classList.remove("hidden");
+      }
     }
 
     if (q.type === "audio") {
@@ -308,6 +321,10 @@ function submitAnswer(answer) {
 
   if (q.type === "youtube") {
     revealYouTube();
+  }
+
+  if (q.type === "image" && q.zoomReveal) {
+    zoomImageEl.classList.add("revealed");
   }
 
   if (q.revealImage) {
