@@ -103,6 +103,7 @@ const contentFileEl    = document.getElementById('contentFile');
 const fileUploadRow    = document.getElementById('fileUploadRow');
 const startSecondsRow  = document.getElementById('startSecondsRow');
 const startSecondsInput = document.getElementById('startSecondsInput');
+const endSecondsInput   = document.getElementById('endSecondsInput');
 const zoomRow          = document.getElementById('zoomRow');
 const zoomRevealToggle = document.getElementById('zoomRevealToggle');
 const zoomOptions      = document.getElementById('zoomOptions');
@@ -368,8 +369,10 @@ function buildQuestionObject() {
   if (revealCap) obj.revealCaption = revealCap;
 
   if (currentType === 'youtube') {
-    const secs = parseInt(startSecondsInput.value, 10);
-    if (secs > 0) obj.startSeconds = secs;
+    const start = parseInt(startSecondsInput.value, 10);
+    const end   = parseInt(endSecondsInput.value, 10);
+    if (start > 0) obj.startSeconds = start;
+    if (end   > 0) obj.endSeconds   = end;
   }
 
   if (currentType === 'image' && zoomRevealToggle.checked) {
@@ -438,6 +441,7 @@ function clearForm() {
   revealCaptionInput.value = '';
   dateInput.value          = '';
   startSecondsInput.value  = '';
+  endSecondsInput.value    = '';
   zoomRevealToggle.checked = false;
   zoomOptions.classList.add('hidden');
   zoomLevelInput.value   = '12';
@@ -485,7 +489,8 @@ function loadForEditing(index) {
   explanationInput.value   = q.explanation;
   revealImageInput.value   = q.revealImage   || '';
   revealCaptionInput.value = q.revealCaption || '';
-  startSecondsInput.value  = q.startSeconds  || '';
+  startSecondsInput.value  = q.startSeconds || '';
+  endSecondsInput.value    = q.endSeconds   || '';
   zoomRevealToggle.checked = !!q.zoomReveal;
   zoomOptions.classList.toggle('hidden', !q.zoomReveal);
   zoomLevelInput.value   = q.zoomLevel   ?? 12;

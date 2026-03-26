@@ -141,8 +141,10 @@ function extractYouTubeId(url) {
 
 function loadYouTube(q) {
   const id = extractYouTubeId(q.content);
-  const start = q.startSeconds || 0;
-  ytPlayerEl.src = `https://www.youtube.com/embed/${id}?enablejsapi=1&start=${start}`;
+  let src = `https://www.youtube.com/embed/${id}?enablejsapi=1`;
+  if (q.startSeconds) src += `&start=${q.startSeconds}`;
+  if (q.endSeconds)   src += `&end=${q.endSeconds}`;
+  ytPlayerEl.src = src;
   ytCoverEl.classList.remove("revealed");
   ytContainerEl.classList.remove("hidden");
 }
