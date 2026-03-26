@@ -4,6 +4,18 @@ const config = {
   questionsPerDay: 5
 };
 
+const CELEBRATION_MESSAGES_FALLBACK = [
+  "Congratulations, ASS. You should be proud.",
+  "Not bad for an ASS.",
+  "The murder of crows salutes you, ASS.",
+  "ASS has entered the record books. Truly a moment.",
+  "Well played, ASS. The crows were watching.",
+  "Remarkable performance, ASS. Simply remarkable."
+];
+
+let celebrationMessages = [...CELEBRATION_MESSAGES_FALLBACK];
+let lastSavedAt = null;
+
 const QUESTIONS_FALLBACK = [
   {
     type: "text",
@@ -54,15 +66,17 @@ const revealCaptionEl = document.getElementById("revealCaption");
 const endedEl     = document.getElementById("ended");
 const revealCtaEl = document.getElementById("revealCta");
 const nextBtn     = document.getElementById("nextBtn");
-const timeDisplayEl   = document.getElementById("timeDisplay");
-const assInputEl      = document.getElementById("assInput");
+const timeDisplayEl    = document.getElementById("timeDisplay");
 const saveScoreTrigger = document.getElementById("saveScoreTrigger");
-const assEntryEl       = document.getElementById("assEntry");
-const saveScoreBtn     = document.getElementById("saveScoreBtn");
 const scoreSavedMsgEl  = document.getElementById("scoreSavedMsg");
 const leaderboardToggleBtn = document.getElementById("leaderboardToggle");
 const leaderboardPanelEl   = document.getElementById("leaderboardPanel");
 const leaderboardListEl    = document.getElementById("leaderboardList");
+const celebrationModalEl   = document.getElementById("celebrationModal");
+const modalMessageEl       = document.getElementById("modalMessage");
+const modalScoreEl         = document.getElementById("modalScore");
+const modalTimeEl          = document.getElementById("modalTime");
+const modalCloseBtnEl      = document.getElementById("modalCloseBtn");
 
 let shareButton;
 
@@ -118,7 +132,14 @@ async function initGame() {
     const res = await fetch('questions.json');
     if (!res.ok) throw new Error('fetch failed');
     const data = await res.json();
-    questions = data.length > 0 ? data : QUESTIONS_FALLBACK;
+    if (Array.isArray(data)) {
+      questions = data.length > 0 ? data : QUESTIONS_FALLBACK;
+    } else {
+      questions = data.questions?.length > 0 ? data.questions : QUESTIONS_FALLBACK;
+      if (data.celebrationMessages?.length > 0) {
+        celebrationMessages = data.celebrationMessages;
+      }
+    }
   } catch (e) {
     questions = QUESTIONS_FALLBACK;
   }
@@ -370,18 +391,13 @@ function showResults() {
     revealCtaEl.classList.add("show");
   }, 1800);
 
-  // Reset ASS input section
+  // Reset save score button
   if (saveScoreTrigger) {
     saveScoreTrigger.classList.remove("hidden");
     saveScoreTrigger.disabled = false;
   }
-  if (assEntryEl) assEntryEl.classList.add("hidden");
-  if (assInputEl) {
-    assInputEl.value = "";
-    assInputEl.classList.remove("saved");
-  }
-  if (saveScoreBtn) saveScoreBtn.disabled = false;
   if (scoreSavedMsgEl) scoreSavedMsgEl.textContent = "";
+  lastSavedAt = null;
 
   // Collapse leaderboard
   if (leaderboardPanelEl) leaderboardPanelEl.classList.add("hidden");
@@ -444,9 +460,9 @@ function saveLeaderboard(entries) {
   localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
 }
 
-function addLeaderboardEntry(name, scoreVal, timeVal) {
+function addLeaderboardEntry(name, scoreVal, timeVal, savedAt) {
   const entries = getLeaderboard();
-  entries.push({ name, score: scoreVal, time: timeVal });
+  entries.push({ name, score: scoreVal, time: timeVal, savedAt });
 
   // Sort: higher score first, then lower time
   entries.sort((a, b) => {
@@ -469,48 +485,51 @@ function renderLeaderboard() {
     return;
   }
 
-  leaderboardListEl.innerHTML = entries.map((e, i) => `
-    <div class="lb-row ${i === 0 ? "lb-top" : ""}">
-      <span class="lb-rank">${i + 1}</span>
-      <span class="lb-name">${e.name}</span>
-      <span class="lb-score">${e.score}/${activeQuestions.length}</span>
-      <span class="lb-time">${formatTime(e.time)}</span>
-    </div>
-  `).join("");
+  leaderboardListEl.innerHTML = entries.map((e, i) => {
+    const isOwn = lastSavedAt && e.savedAt === lastSavedAt;
+    const youLabel = isOwn ? ' <span class="lb-you">⬅️ Your Score</span>' : '';
+    return `
+      <div class="lb-row ${i === 0 ? "lb-top" : ""}">
+        <span class="lb-rank">${i + 1}</span>
+        <span class="lb-name">${e.name}${youLabel}</span>
+        <span class="lb-score">${e.score}/${activeQuestions.length}</span>
+        <span class="lb-time">${formatTime(e.time)}</span>
+      </div>
+    `;
+  }).join("");
 }
 
-// Enforce ASS-only input
-function initAssInput() {
-  if (!assInputEl) return;
-
-  assInputEl.addEventListener("input", () => {
-    assInputEl.value = "ASS";
-  });
-
-  assInputEl.addEventListener("focus", () => {
-    assInputEl.value = "ASS";
-  });
-}
-
-function revealAssEntry() {
-  if (!saveScoreTrigger || !assEntryEl) return;
-  saveScoreTrigger.classList.add("hidden");
-  assInputEl.value = "ASS";
-  assEntryEl.classList.remove("hidden");
-  assInputEl.focus();
-}
+// ======================
+//  CELEBRATION MODAL
+// ======================
 
 function handleSaveScore() {
-  if (!saveScoreBtn) return;
-  addLeaderboardEntry("ASS", score, elapsedSeconds);
-  saveScoreBtn.disabled = true;
-  if (assEntryEl) assEntryEl.classList.add("hidden");
+  if (!saveScoreTrigger) return;
+  const savedAt = Date.now();
+  lastSavedAt = savedAt;
+  addLeaderboardEntry("ASS", score, elapsedSeconds, savedAt);
+
+  saveScoreTrigger.classList.add("hidden");
   if (scoreSavedMsgEl) scoreSavedMsgEl.textContent = "Score saved! 🐦‍⬛";
 
-  // Re-render leaderboard if it's open
+  showCelebrationModal();
+
   if (leaderboardPanelEl && !leaderboardPanelEl.classList.contains("hidden")) {
     renderLeaderboard();
   }
+}
+
+function showCelebrationModal() {
+  const msg = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+  modalMessageEl.textContent = msg;
+  modalScoreEl.textContent = `${score} / ${activeQuestions.length}`;
+  modalTimeEl.textContent = `⏱ ${formatTime(elapsedSeconds)}`;
+  celebrationModalEl.classList.remove("hidden");
+}
+
+function closeCelebrationModal() {
+  celebrationModalEl.classList.add("hidden");
+  renderLeaderboard();
 }
 
 function toggleLeaderboard() {
@@ -558,9 +577,9 @@ function restartGame() {
 
 nextBtn.addEventListener("click", advanceQuestion);
 
-if (saveScoreTrigger) saveScoreTrigger.addEventListener("click", revealAssEntry);
-if (saveScoreBtn) saveScoreBtn.addEventListener("click", handleSaveScore);
+if (saveScoreTrigger) saveScoreTrigger.addEventListener("click", handleSaveScore);
 if (leaderboardToggleBtn) leaderboardToggleBtn.addEventListener("click", toggleLeaderboard);
+if (modalCloseBtnEl) modalCloseBtnEl.addEventListener("click", closeCelebrationModal);
 
 document.addEventListener("keydown", (e) => {
   if (gameEl.classList.contains("hidden")) return;
@@ -578,5 +597,4 @@ document.addEventListener("keydown", (e) => {
 //  BOOT
 // ======================
 
-initAssInput();
 initGame();

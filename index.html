@@ -42,10 +42,6 @@
       <p id="revealCta" class="reveal-cta hidden"></p>
 
       <button id="saveScoreTrigger" class="save-trigger">Save Score</button>
-      <div id="assEntry" class="ass-entry hidden">
-        <input id="assInput" class="ass-input" type="text" maxlength="3" placeholder="ASS" autocomplete="off" spellcheck="false" />
-        <button id="saveScoreBtn" class="btn ass-save">Submit</button>
-      </div>
       <p id="scoreSavedMsg" class="score-saved-msg"></p>
 
       <button id="leaderboardToggle" class="btn lb-toggle">🏆 High Scores</button>
@@ -59,6 +55,18 @@
     <div id="ended" class="hidden">
       <p class="subtitle">🐦‍⬛ This game has ended.</p>
       <p class="progress">Thanks for playing Crow or No?</p>
+    </div>
+  </div>
+
+  <!-- Celebration Modal -->
+  <div id="celebrationModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <p id="modalMessage" class="modal-message"></p>
+      <div class="modal-stats">
+        <span id="modalScore"></span>
+        <span id="modalTime"></span>
+      </div>
+      <button id="modalCloseBtn" class="btn">🐦‍⬛ Close</button>
     </div>
   </div>
 

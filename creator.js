@@ -2,10 +2,27 @@
 //  STORAGE
 // ======================
 
-const QUESTIONS_KEY = 'crow_questions';
+const QUESTIONS_KEY   = 'crow_questions';
+const MESSAGES_KEY    = 'crow_celebration_messages';
+
+const DEFAULT_MESSAGES = [
+  "Congratulations, ASS. You should be proud.",
+  "Not bad for an ASS.",
+  "The murder of crows salutes you, ASS.",
+  "ASS has entered the record books. Truly a moment.",
+  "Well played, ASS. The crows were watching.",
+  "Remarkable performance, ASS. Simply remarkable."
+];
+
+let celebrationMessages = [];
 
 function persistQuestions() {
   localStorage.setItem(QUESTIONS_KEY, JSON.stringify(questions));
+  showSaveIndicator();
+}
+
+function persistMessages() {
+  localStorage.setItem(MESSAGES_KEY, JSON.stringify(celebrationMessages));
   showSaveIndicator();
 }
 
@@ -15,6 +32,15 @@ function loadQuestionsFromStorage() {
     if (raw) questions = JSON.parse(raw);
   } catch (e) {
     questions = [];
+  }
+}
+
+function loadMessagesFromStorage() {
+  try {
+    const raw = localStorage.getItem(MESSAGES_KEY);
+    celebrationMessages = raw ? JSON.parse(raw) : [...DEFAULT_MESSAGES];
+  } catch (e) {
+    celebrationMessages = [...DEFAULT_MESSAGES];
   }
 }
 
@@ -73,6 +99,12 @@ const copyBtn       = document.getElementById('copyBtn');
 const copyFeedback  = document.getElementById('copyFeedback');
 const statusSelector = document.getElementById('statusSelector');
 const dateInput      = document.getElementById('dateInput');
+const contentFileEl  = document.getElementById('contentFile');
+const fileUploadRow  = document.getElementById('fileUploadRow');
+const messageListEl  = document.getElementById('messageList');
+const messageInputEl = document.getElementById('messageInput');
+const addMessageBtn  = document.getElementById('addMessageBtn');
+const messageErrorEl = document.getElementById('messageError');
 
 // ======================
 //  TYPE SELECTOR
@@ -95,18 +127,40 @@ function updateContentField() {
   if (currentType === 'text') {
     contentInput.classList.remove('hidden');
     contentUrl.classList.add('hidden');
+    fileUploadRow.classList.add('hidden');
     contentLabel.textContent = 'Question Text';
   } else if (currentType === 'image') {
     contentInput.classList.add('hidden');
     contentUrl.classList.remove('hidden');
+    fileUploadRow.classList.remove('hidden');
+    contentFileEl.accept = 'image/*';
     contentLabel.textContent = 'Image URL';
     contentUrl.placeholder = 'https://example.com/image.jpg';
   } else if (currentType === 'audio') {
     contentInput.classList.add('hidden');
     contentUrl.classList.remove('hidden');
+    fileUploadRow.classList.remove('hidden');
+    contentFileEl.accept = 'audio/*';
     contentLabel.textContent = 'Audio URL';
     contentUrl.placeholder = 'https://example.com/audio.mp3';
   }
+}
+
+// ======================
+//  FILE UPLOAD
+// ======================
+
+function initFileUpload() {
+  contentFileEl.addEventListener('change', () => {
+    const file = contentFileEl.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      contentUrl.value = e.target.result;
+      updatePreview();
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function updateRevealVisibility() {
@@ -483,6 +537,48 @@ function handleDragEnd(e) {
 }
 
 // ======================
+//  CELEBRATION MESSAGES
+// ======================
+
+function renderMessageList() {
+  if (!messageListEl) return;
+
+  if (celebrationMessages.length === 0) {
+    messageListEl.innerHTML = '<p class="empty-state">No messages yet.</p>';
+    return;
+  }
+
+  messageListEl.innerHTML = '';
+  celebrationMessages.forEach((msg, i) => {
+    const item = document.createElement('div');
+    item.className = 'question-item';
+    item.innerHTML = `
+      <span class="question-item-text">${escapeHtml(msg)}</span>
+      <button class="item-btn delete msg-delete-btn" data-index="${i}">Delete</button>
+    `;
+    item.querySelector('.msg-delete-btn').addEventListener('click', () => {
+      celebrationMessages.splice(i, 1);
+      renderMessageList();
+      persistMessages();
+    });
+    messageListEl.appendChild(item);
+  });
+}
+
+function handleAddMessage() {
+  const text = messageInputEl.value.trim();
+  if (!text) {
+    messageErrorEl.textContent = 'Message cannot be empty.';
+    return;
+  }
+  messageErrorEl.textContent = '';
+  celebrationMessages.push(text);
+  messageInputEl.value = '';
+  renderMessageList();
+  persistMessages();
+}
+
+// ======================
 //  CODE GENERATION
 // ======================
 
@@ -571,7 +667,8 @@ function fallbackCopy(text) {
 }
 
 function exportJson() {
-  const json = JSON.stringify(questions, null, 2);
+  const payload = { questions, celebrationMessages };
+  const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
@@ -601,15 +698,19 @@ function init() {
   exportJsonBtn.addEventListener('click',  exportJson);
   generateBtn.addEventListener('click',    generateCode);
   copyBtn.addEventListener('click',        copyToClipboard);
+  addMessageBtn.addEventListener('click',  handleAddMessage);
 
-  // Load any previously saved questions
+  // Load any previously saved data
   loadQuestionsFromStorage();
+  loadMessagesFromStorage();
+  initFileUpload();
 
   // Set initial field/visibility state
   updateContentField();
   updateRevealVisibility();
   updatePreview();
   renderQuestionList();
+  renderMessageList();
 }
 
 init();

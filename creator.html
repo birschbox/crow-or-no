@@ -342,6 +342,13 @@
                 placeholder="Enter the question or clue..."></textarea>
       <input id="contentUrl" class="creator-input hidden" type="url"
              placeholder="https://example.com/image.jpg" />
+      <div id="fileUploadRow" class="hidden" style="margin-top:10px">
+        <label class="field-label" style="margin-bottom:6px">Or upload a file</label>
+        <input id="contentFile" class="creator-input" type="file" accept="image/*,audio/*" />
+        <p id="fileUploadNote" style="font-size:0.75rem;opacity:0.45;margin:6px 0 0">
+          Note: large audio files will significantly increase your questions.json size.
+        </p>
+      </div>
     </div>
 
     <div class="field-group">
@@ -415,7 +422,27 @@
       <p class="empty-state">No questions yet. Add one above.</p>
     </div>
 
-    <!-- ==================== SECTION 4: CODE OUTPUT ==================== -->
+    <!-- ==================== SECTION 4: CELEBRATION MESSAGES ==================== -->
+    <h2 class="section-title">Celebration Messages</h2>
+
+    <div class="callout">
+      One of these is shown randomly in the popup when a player saves their score. The player is always saved as <strong>ASS</strong>.
+    </div>
+
+    <div id="messageList" class="question-list"></div>
+
+    <div class="field-group" style="margin-top:14px">
+      <label class="field-label">New Message</label>
+      <div style="display:flex;gap:8px;align-items:flex-start">
+        <textarea id="messageInput" class="creator-input" rows="2"
+                  placeholder="e.g. Congratulations, ASS. You should be proud."
+                  style="flex:1;min-height:50px"></textarea>
+        <button class="btn" id="addMessageBtn" style="flex-shrink:0;padding:10px 16px">Add</button>
+      </div>
+      <p class="form-error" id="messageError"></p>
+    </div>
+
+    <!-- ==================== SECTION 5: CODE OUTPUT ==================== -->
     <h2 class="section-title">
       Export Code
       <span id="saveIndicator" style="font-size:0.8rem;font-weight:400;color:var(--accent);letter-spacing:0;text-transform:none;opacity:0.8"></span>

@@ -1,23 +1,33 @@
-[
-  {
-    "type": "text",
-    "content": "Maximus Decimus Meridius",
-    "answer": "crow",
-    "explanation": "This character was played by Russell Crowe in Gladiator.",
-    "status": "active"
-  },
-  {
-    "type": "text",
-    "content": "Quote: 'Nevermore.'",
-    "answer": "no",
-    "explanation": "The quote refers to a raven, not a crow.",
-    "status": "active"
-  },
-  {
-    "type": "text",
-    "content": "A group of them is called a murder.",
-    "answer": "crow",
-    "explanation": "Correct — a group of crows is called a murder.",
-    "status": "active"
-  }
-]
+{
+  "questions": [
+    {
+      "type": "text",
+      "content": "Maximus Decimus Meridius",
+      "answer": "crow",
+      "explanation": "This character was played by Russell Crowe in Gladiator.",
+      "status": "active"
+    },
+    {
+      "type": "text",
+      "content": "Quote: 'Nevermore.'",
+      "answer": "no",
+      "explanation": "The quote refers to a raven, not a crow.",
+      "status": "active"
+    },
+    {
+      "type": "text",
+      "content": "A group of them is called a murder.",
+      "answer": "crow",
+      "explanation": "Correct — a group of crows is called a murder.",
+      "status": "active"
+    }
+  ],
+  "celebrationMessages": [
+    "Congratulations, ASS. You should be proud.",
+    "Not bad for an ASS.",
+    "The murder of crows salutes you, ASS.",
+    "ASS has entered the record books. Truly a moment.",
+    "Well played, ASS. The crows were watching.",
+    "Remarkable performance, ASS. Simply remarkable."
+  ]
+}
