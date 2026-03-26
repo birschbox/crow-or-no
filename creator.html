@@ -333,6 +333,7 @@
         <button class="type-btn active" data-type="text">Text</button>
         <button class="type-btn" data-type="image">Image</button>
         <button class="type-btn" data-type="audio">Audio</button>
+        <button class="type-btn" data-type="youtube">YouTube</button>
       </div>
     </div>
 
@@ -342,6 +343,11 @@
                 placeholder="Enter the question or clue..."></textarea>
       <input id="contentUrl" class="creator-input hidden" type="url"
              placeholder="https://example.com/image.jpg" />
+      <div id="startSecondsRow" class="hidden" style="margin-top:10px">
+        <label class="field-label">Start at (seconds) <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input id="startSecondsInput" class="creator-input" type="number" min="0" placeholder="0" />
+      </div>
+
       <div id="fileUploadRow" class="hidden" style="margin-top:10px">
         <label class="field-label" style="margin-bottom:6px">Or upload a file</label>
         <input id="contentFile" class="creator-input" type="file" accept="image/*,audio/*" />

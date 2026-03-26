@@ -99,8 +99,10 @@ const copyBtn       = document.getElementById('copyBtn');
 const copyFeedback  = document.getElementById('copyFeedback');
 const statusSelector = document.getElementById('statusSelector');
 const dateInput      = document.getElementById('dateInput');
-const contentFileEl  = document.getElementById('contentFile');
-const fileUploadRow  = document.getElementById('fileUploadRow');
+const contentFileEl    = document.getElementById('contentFile');
+const fileUploadRow    = document.getElementById('fileUploadRow');
+const startSecondsRow  = document.getElementById('startSecondsRow');
+const startSecondsInput = document.getElementById('startSecondsInput');
 const messageListEl  = document.getElementById('messageList');
 const messageInputEl = document.getElementById('messageInput');
 const addMessageBtn  = document.getElementById('addMessageBtn');
@@ -123,26 +125,37 @@ function initTypeSelector() {
   });
 }
 
+function extractYouTubeId(url) {
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^&\s?#]+)/);
+  return match ? match[1] : url;
+}
+
 function updateContentField() {
+  contentInput.classList.add('hidden');
+  contentUrl.classList.add('hidden');
+  fileUploadRow.classList.add('hidden');
+  startSecondsRow.classList.add('hidden');
+
   if (currentType === 'text') {
     contentInput.classList.remove('hidden');
-    contentUrl.classList.add('hidden');
-    fileUploadRow.classList.add('hidden');
     contentLabel.textContent = 'Question Text';
   } else if (currentType === 'image') {
-    contentInput.classList.add('hidden');
     contentUrl.classList.remove('hidden');
     fileUploadRow.classList.remove('hidden');
     contentFileEl.accept = 'image/*';
     contentLabel.textContent = 'Image URL';
     contentUrl.placeholder = 'https://example.com/image.jpg';
   } else if (currentType === 'audio') {
-    contentInput.classList.add('hidden');
     contentUrl.classList.remove('hidden');
     fileUploadRow.classList.remove('hidden');
     contentFileEl.accept = 'audio/*';
     contentLabel.textContent = 'Audio URL';
     contentUrl.placeholder = 'https://example.com/audio.mp3';
+  } else if (currentType === 'youtube') {
+    contentUrl.classList.remove('hidden');
+    startSecondsRow.classList.remove('hidden');
+    contentLabel.textContent = 'YouTube URL';
+    contentUrl.placeholder = 'https://www.youtube.com/watch?v=...';
   }
 }
 
@@ -164,7 +177,8 @@ function initFileUpload() {
 }
 
 function updateRevealVisibility() {
-  if (currentType === 'text') {
+  // YouTube reveals itself; text has no media to reveal
+  if (currentType === 'text' || currentType === 'youtube') {
     revealSection.classList.add('hidden');
   } else {
     revealSection.classList.remove('hidden');
@@ -237,6 +251,15 @@ function updatePreview() {
     } else {
       previewContent.textContent = 'Enter an audio URL above to preview';
     }
+  } else if (currentType === 'youtube') {
+    const id = content ? extractYouTubeId(content) : null;
+    if (id) {
+      previewImage.src = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+      previewImage.classList.remove('hidden');
+      previewContent.textContent = '▶ Audio only during question — video reveals on answer';
+    } else {
+      previewContent.textContent = 'Enter a YouTube URL above to preview';
+    }
   }
 
   // Explanation
@@ -263,7 +286,7 @@ function updatePreview() {
 }
 
 function initLivePreview() {
-  [contentInput, contentUrl, explanationInput, revealImageInput, revealCaptionInput]
+  [contentInput, contentUrl, explanationInput, revealImageInput, revealCaptionInput, startSecondsInput]
     .forEach(el => el.addEventListener('input', updatePreview));
 }
 
@@ -304,6 +327,11 @@ function buildQuestionObject() {
 
   if (revealImg) obj.revealImage   = revealImg;
   if (revealCap) obj.revealCaption = revealCap;
+
+  if (currentType === 'youtube') {
+    const secs = parseInt(startSecondsInput.value, 10);
+    if (secs > 0) obj.startSeconds = secs;
+  }
 
   obj.status = currentStatus;
   if (dateVal) obj.date = dateVal;
@@ -363,6 +391,7 @@ function clearForm() {
   revealImageInput.value   = '';
   revealCaptionInput.value = '';
   dateInput.value          = '';
+  startSecondsInput.value  = '';
 
   addQuestionBtn.textContent = 'Add to List';
 
@@ -405,6 +434,7 @@ function loadForEditing(index) {
   explanationInput.value   = q.explanation;
   revealImageInput.value   = q.revealImage   || '';
   revealCaptionInput.value = q.revealCaption || '';
+  startSecondsInput.value  = q.startSeconds  || '';
 
   currentStatus = q.status || 'active';
   statusSelector.querySelectorAll('.type-btn').forEach(b => {

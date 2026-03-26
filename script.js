@@ -78,6 +78,10 @@ const modalScoreEl         = document.getElementById("modalScore");
 const modalTimeEl          = document.getElementById("modalTime");
 const modalCloseBtnEl      = document.getElementById("modalCloseBtn");
 const initialsInputEl      = document.getElementById("initialsInput");
+const ytContainerEl        = document.getElementById("ytContainer");
+const ytPlayerEl           = document.getElementById("ytPlayer");
+const ytCoverEl            = document.getElementById("ytCover");
+const ytPlayBtnEl          = document.getElementById("ytPlayBtn");
 
 let shareButton;
 
@@ -122,6 +126,39 @@ function stopTimer() {
 function getTodayString() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+// ======================
+//  YOUTUBE HELPERS
+// ======================
+
+function extractYouTubeId(url) {
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^&\s?#]+)/);
+  return match ? match[1] : url;
+}
+
+function loadYouTube(q) {
+  const id = extractYouTubeId(q.content);
+  const start = q.startSeconds || 0;
+  ytPlayerEl.src = `https://www.youtube.com/embed/${id}?enablejsapi=1&start=${start}`;
+  ytCoverEl.classList.remove("revealed");
+  ytContainerEl.classList.remove("hidden");
+}
+
+function ytCommand(func) {
+  ytPlayerEl.contentWindow?.postMessage(
+    JSON.stringify({ event: "command", func, args: [] }), "*"
+  );
+}
+
+function revealYouTube() {
+  ytCoverEl.classList.add("revealed");
+}
+
+function resetYouTube() {
+  ytCommand("pauseVideo");
+  ytContainerEl.classList.add("hidden");
+  ytPlayerEl.src = "";
 }
 
 // ======================
@@ -186,6 +223,7 @@ function loadQuestion() {
   // Reset media
   imageEl.classList.add("hidden");
   audioEl.classList.add("hidden");
+  resetYouTube();
   explanationEl.textContent = "";
   feedbackEl.textContent = "";
   feedbackEl.classList.remove("show");
@@ -212,6 +250,10 @@ function loadQuestion() {
     if (q.type === "audio") {
       audioEl.src = q.content;
       audioEl.classList.remove("hidden");
+    }
+
+    if (q.type === "youtube") {
+      loadYouTube(q);
     }
 
     progressEl.textContent = `Question ${currentQuestion + 1} of ${activeQuestions.length}`;
@@ -263,6 +305,10 @@ function submitAnswer(answer) {
   }
 
   explanationEl.textContent = q.explanation;
+
+  if (q.type === "youtube") {
+    revealYouTube();
+  }
 
   if (q.revealImage) {
     revealImageEl.src = q.revealImage;
@@ -567,6 +613,7 @@ function restartGame() {
   revealCtaEl.classList.remove("show");
   if (timeDisplayEl) timeDisplayEl.classList.add("hidden");
   resetAnswerButtons();
+  resetYouTube();
   gameEl.classList.remove("hidden");
 
   loadQuestion();
@@ -580,6 +627,7 @@ nextBtn.addEventListener("click", advanceQuestion);
 
 if (saveScoreTrigger) saveScoreTrigger.addEventListener("click", handleSaveScore);
 if (leaderboardToggleBtn) leaderboardToggleBtn.addEventListener("click", toggleLeaderboard);
+if (ytPlayBtnEl) ytPlayBtnEl.addEventListener("click", () => ytCommand("playVideo"));
 if (modalCloseBtnEl) modalCloseBtnEl.addEventListener("click", closeCelebrationModal);
 if (initialsInputEl) initialsInputEl.addEventListener("input", () => {
   initialsInputEl.value = initialsInputEl.value.toUpperCase();

@@ -22,6 +22,14 @@
       <div id="question" class="question"></div>
         <img id="questionImage" class="media hidden" />
         <audio id="questionAudio" class="hidden" controls></audio>
+        <div id="ytContainer" class="yt-container hidden">
+          <iframe id="ytPlayer" class="yt-iframe" frameborder="0"
+                  allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          <div id="ytCover" class="yt-cover">
+            <p class="yt-cover-label">🎵 Listen and decide...</p>
+            <button id="ytPlayBtn" class="btn yt-play-btn">▶ Play</button>
+          </div>
+        </div>
       <div id="feedback" class="feedback"></div>
         <p id="explanation" class="explanation"></p>
         <img id="revealImage" class="media hidden" alt="Reveal" />
