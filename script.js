@@ -77,6 +77,7 @@ const modalMessageEl       = document.getElementById("modalMessage");
 const modalScoreEl         = document.getElementById("modalScore");
 const modalTimeEl          = document.getElementById("modalTime");
 const modalCloseBtnEl      = document.getElementById("modalCloseBtn");
+const initialsInputEl      = document.getElementById("initialsInput");
 
 let shareButton;
 
@@ -460,9 +461,9 @@ function saveLeaderboard(entries) {
   localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
 }
 
-function addLeaderboardEntry(name, scoreVal, timeVal, savedAt) {
+function addLeaderboardEntry(initials, scoreVal, timeVal, savedAt) {
   const entries = getLeaderboard();
-  entries.push({ name, score: scoreVal, time: timeVal, savedAt });
+  entries.push({ initials, score: scoreVal, time: timeVal, savedAt });
 
   // Sort: higher score first, then lower time
   entries.sort((a, b) => {
@@ -491,7 +492,7 @@ function renderLeaderboard() {
     return `
       <div class="lb-row ${i === 0 ? "lb-top" : ""}">
         <span class="lb-rank">${i + 1}</span>
-        <span class="lb-name">${e.name}${youLabel}</span>
+        <span class="lb-name">ASS${youLabel}</span>
         <span class="lb-score">${e.score}/${activeQuestions.length}</span>
         <span class="lb-time">${formatTime(e.time)}</span>
       </div>
@@ -505,18 +506,8 @@ function renderLeaderboard() {
 
 function handleSaveScore() {
   if (!saveScoreTrigger) return;
-  const savedAt = Date.now();
-  lastSavedAt = savedAt;
-  addLeaderboardEntry("ASS", score, elapsedSeconds, savedAt);
-
   saveScoreTrigger.classList.add("hidden");
-  if (scoreSavedMsgEl) scoreSavedMsgEl.textContent = "Score saved! 🐦‍⬛";
-
   showCelebrationModal();
-
-  if (leaderboardPanelEl && !leaderboardPanelEl.classList.contains("hidden")) {
-    renderLeaderboard();
-  }
 }
 
 function showCelebrationModal() {
@@ -524,11 +515,21 @@ function showCelebrationModal() {
   modalMessageEl.textContent = msg;
   modalScoreEl.textContent = `${score} / ${activeQuestions.length}`;
   modalTimeEl.textContent = `⏱ ${formatTime(elapsedSeconds)}`;
+  if (initialsInputEl) {
+    initialsInputEl.value = "";
+    initialsInputEl.focus();
+  }
   celebrationModalEl.classList.remove("hidden");
 }
 
 function closeCelebrationModal() {
+  const initials = (initialsInputEl?.value.trim().toUpperCase() || "???").slice(0, 3);
+  const savedAt = Date.now();
+  lastSavedAt = savedAt;
+  addLeaderboardEntry(initials, score, elapsedSeconds, savedAt);
+
   celebrationModalEl.classList.add("hidden");
+  if (scoreSavedMsgEl) scoreSavedMsgEl.textContent = "Score saved! 🐦‍⬛";
   renderLeaderboard();
 }
 
@@ -580,6 +581,9 @@ nextBtn.addEventListener("click", advanceQuestion);
 if (saveScoreTrigger) saveScoreTrigger.addEventListener("click", handleSaveScore);
 if (leaderboardToggleBtn) leaderboardToggleBtn.addEventListener("click", toggleLeaderboard);
 if (modalCloseBtnEl) modalCloseBtnEl.addEventListener("click", closeCelebrationModal);
+if (initialsInputEl) initialsInputEl.addEventListener("input", () => {
+  initialsInputEl.value = initialsInputEl.value.toUpperCase();
+});
 
 document.addEventListener("keydown", (e) => {
   if (gameEl.classList.contains("hidden")) return;
