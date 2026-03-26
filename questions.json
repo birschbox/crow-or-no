@@ -1,0 +1,23 @@
+[
+  {
+    "type": "text",
+    "content": "Maximus Decimus Meridius",
+    "answer": "crow",
+    "explanation": "This character was played by Russell Crowe in Gladiator.",
+    "status": "active"
+  },
+  {
+    "type": "text",
+    "content": "Quote: 'Nevermore.'",
+    "answer": "no",
+    "explanation": "The quote refers to a raven, not a crow.",
+    "status": "active"
+  },
+  {
+    "type": "text",
+    "content": "A group of them is called a murder.",
+    "answer": "crow",
+    "explanation": "Correct — a group of crows is called a murder.",
+    "status": "active"
+  }
+]

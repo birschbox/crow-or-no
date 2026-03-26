@@ -4,26 +4,31 @@ const config = {
   questionsPerDay: 5
 };
 
-const questions = [
+const QUESTIONS_FALLBACK = [
   {
     type: "text",
     content: "Maximus Decimus Meridius",
     answer: "crow",
-    explanation: "This character was played by Russell Crowe in Gladiator."
+    explanation: "This character was played by Russell Crowe in Gladiator.",
+    status: "active"
   },
   {
     type: "text",
     content: "Quote: 'Nevermore.'",
     answer: "no",
-    explanation: "The quote refers to a raven, not a crow."
+    explanation: "The quote refers to a raven, not a crow.",
+    status: "active"
   },
   {
     type: "text",
     content: "A group of them is called a murder.",
     answer: "crow",
-    explanation: "Correct — a group of crows is called a murder."
+    explanation: "Correct — a group of crows is called a murder.",
+    status: "active"
   }
 ];
+
+let questions = [];
 
 let currentQuestion = 0;
 let score = 0;
@@ -108,7 +113,16 @@ function getTodayString() {
 //  INIT
 // ======================
 
-function initGame() {
+async function initGame() {
+  try {
+    const res = await fetch('questions.json');
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    questions = data.length > 0 ? data : QUESTIONS_FALLBACK;
+  } catch (e) {
+    questions = QUESTIONS_FALLBACK;
+  }
+
   const today = getTodayString();
 
   if (today > config.endDate) {

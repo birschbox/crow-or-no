@@ -1,4 +1,32 @@
 // ======================
+//  STORAGE
+// ======================
+
+const QUESTIONS_KEY = 'crow_questions';
+
+function persistQuestions() {
+  localStorage.setItem(QUESTIONS_KEY, JSON.stringify(questions));
+  showSaveIndicator();
+}
+
+function loadQuestionsFromStorage() {
+  try {
+    const raw = localStorage.getItem(QUESTIONS_KEY);
+    if (raw) questions = JSON.parse(raw);
+  } catch (e) {
+    questions = [];
+  }
+}
+
+function showSaveIndicator() {
+  const el = document.getElementById('saveIndicator');
+  if (!el) return;
+  el.textContent = 'Saved ✓';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.textContent = ''; }, 2000);
+}
+
+// ======================
 //  STATE
 // ======================
 
@@ -38,6 +66,7 @@ const previewBadge        = document.getElementById('previewBadge');
 const questionList  = document.getElementById('questionList');
 const questionCount = document.getElementById('questionCount');
 const generateBtn   = document.getElementById('generateBtn');
+const exportJsonBtn = document.getElementById('exportJsonBtn');
 const codeOutput    = document.getElementById('codeOutput');
 const codePre       = document.getElementById('codePre');
 const copyBtn       = document.getElementById('copyBtn');
@@ -253,6 +282,7 @@ function handleAddOrUpdate() {
 
   clearForm();
   renderQuestionList();
+  persistQuestions();
 }
 
 // ======================
@@ -348,6 +378,7 @@ function deleteQuestion(index) {
   }
   questions.splice(index, 1);
   renderQuestionList();
+  persistQuestions();
 }
 
 // ======================
@@ -442,6 +473,7 @@ function handleDrop(e) {
   }
 
   renderQuestionList();
+  persistQuestions();
 }
 
 function handleDragEnd(e) {
@@ -538,6 +570,17 @@ function fallbackCopy(text) {
   showCopyFeedback();
 }
 
+function exportJson() {
+  const json = JSON.stringify(questions, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'questions.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function showCopyFeedback() {
   copyFeedback.textContent = 'Copied to clipboard!';
   setTimeout(() => { copyFeedback.textContent = ''; }, 2000);
@@ -555,8 +598,12 @@ function init() {
 
   addQuestionBtn.addEventListener('click', handleAddOrUpdate);
   clearFormBtn.addEventListener('click',   clearForm);
+  exportJsonBtn.addEventListener('click',  exportJson);
   generateBtn.addEventListener('click',    generateCode);
   copyBtn.addEventListener('click',        copyToClipboard);
+
+  // Load any previously saved questions
+  loadQuestionsFromStorage();
 
   // Set initial field/visibility state
   updateContentField();

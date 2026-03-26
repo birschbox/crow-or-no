@@ -416,14 +416,17 @@
     </div>
 
     <!-- ==================== SECTION 4: CODE OUTPUT ==================== -->
-    <h2 class="section-title">Generated Code</h2>
+    <h2 class="section-title">
+      Export Code
+      <span id="saveIndicator" style="font-size:0.8rem;font-weight:400;color:var(--accent);letter-spacing:0;text-transform:none;opacity:0.8"></span>
+    </h2>
 
     <div class="callout">
-      Click <strong>Generate Code</strong>, then copy and paste the output into <code>script.js</code>,
-      replacing the entire <code>const questions = [...]</code> block at the top of the file.
+      Questions auto-save to this browser — the game picks them up automatically. Use <strong>Export Code</strong> only if you need to deploy to a different device or browser.
     </div>
 
-    <button class="btn" id="generateBtn">Generate Code</button>
+    <button class="btn" id="exportJsonBtn">Export questions.json</button>
+    <button class="btn secondary" id="generateBtn" style="margin-left:8px">Export Code</button>
 
     <div class="code-output hidden" id="codeOutput">
       <pre id="codePre"></pre>
