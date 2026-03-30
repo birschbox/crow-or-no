@@ -404,6 +404,15 @@
     </div>
 
     <div class="field-group">
+      <label class="field-label">
+        Question Name
+        <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional — shown in the list for easy identification)</span>
+      </label>
+      <input id="questionNameInput" class="creator-input" type="text"
+             placeholder="e.g. Russell Crowe / Gladiator" />
+    </div>
+
+    <div class="field-group">
       <label class="field-label">Status</label>
       <div class="type-selector" id="statusSelector">
         <button class="type-btn active" data-status="active">Active</button>
@@ -420,13 +429,17 @@
     </div>
 
     <div class="field-group hidden" id="revealSection">
-      <label class="field-label">Reveal Image URL <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <label class="field-label">Reveal Image URL <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional — or use YouTube below)</span></label>
       <input id="revealImageInput" class="creator-input" type="url"
              placeholder="https://example.com/reveal.jpg" />
 
+      <label class="field-label" style="margin-top:12px">Reveal YouTube URL <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional — shown instead of image if provided)</span></label>
+      <input id="revealYoutubeInput" class="creator-input" type="url"
+             placeholder="https://www.youtube.com/watch?v=..." />
+
       <label class="field-label" style="margin-top:12px">Reveal Caption <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
       <input id="revealCaptionInput" class="creator-input" type="text"
-             placeholder="Caption shown below the reveal image" />
+             placeholder="Caption shown below the reveal" />
     </div>
 
     <div class="creator-actions">
@@ -480,7 +493,16 @@
       <p class="form-error" id="messageError"></p>
     </div>
 
-    <!-- ==================== SECTION 5: CODE OUTPUT ==================== -->
+    <!-- ==================== SECTION 5: SCORE RESPONSES ==================== -->
+    <h2 class="section-title">Score Responses</h2>
+
+    <div class="callout">
+      Shown on the results screen based on the player's final score. Each tier has 3 label variants (1st play, 2nd play, 3rd+ play) and a CTA. The CTA supports HTML (e.g. links). Score values are assigned automatically by position (0, 1, 2…).
+    </div>
+
+    <div id="scoreTierList"></div>
+
+    <!-- ==================== SECTION 6: CODE OUTPUT ==================== -->
     <h2 class="section-title">
       Export Code
       <span id="saveIndicator" style="font-size:0.8rem;font-weight:400;color:var(--accent);letter-spacing:0;text-transform:none;opacity:0.8"></span>

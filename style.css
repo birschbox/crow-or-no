@@ -413,6 +413,35 @@
     margin-left: 4px;
   }
 
+  .lb-row.lb-own {
+    background: #0e1a0e;
+  }
+
+  .lb-row.lb-own .lb-rank {
+    color: #6fcf6f;
+    opacity: 1;
+  }
+
+  .lb-separator {
+    height: 1px;
+    background: #333;
+    margin: 4px 14px;
+    position: relative;
+  }
+
+  .lb-separator::before {
+    content: "· · ·";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: #0a0a0a;
+    padding: 0 8px;
+    font-size: 0.65rem;
+    color: #444;
+    letter-spacing: 3px;
+  }
+
   /* ======================
      CELEBRATION MODAL
   ====================== */

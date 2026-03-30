@@ -4,6 +4,109 @@
 
 const QUESTIONS_KEY   = 'crow_questions';
 const MESSAGES_KEY    = 'crow_celebration_messages';
+const SCORE_TIERS_KEY = 'crow_score_tiers';
+
+const DEFAULT_SCORE_TIERS = [
+  {
+    score: 0,
+    labels: [
+      "Zero crows. Not even a feather.",
+      "Still zero. The crows have forgotten you.",
+      "Zero again. Are you okay?"
+    ],
+    cta: 'Maybe <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> can show you the way. 🐦‍⬛'
+  },
+  {
+    score: 1,
+    labels: [
+      "One crow. Technically a start.",
+      "Back for more? Still just one. The crows are not impressed.",
+      "One crow, again. Consistent in your inconsistency."
+    ],
+    cta: 'There\'s more to learn. Start at <a href="https://mplscitysc.com" target="_blank">mplscitysc.com</a>.'
+  },
+  {
+    score: 2,
+    labels: [
+      "Two crows. The birds are barely aware of you.",
+      "Back for more? 2/10 again. The crows have noted this.",
+      "Two crows, three times. The murder is unmoved."
+    ],
+    cta: 'Keep going. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> rewards curiosity.'
+  },
+  {
+    score: 3,
+    labels: [
+      "Three crows. A flicker of crow awareness.",
+      "Back for more? 3/10 again. A flicker, persisting.",
+      "Three crows, multiple tries. The flicker remains unignited."
+    ],
+    cta: 'Want to know more? The Crows play in Minneapolis. <a href="https://mplscitysc.com" target="_blank">mplscitysc.com</a>'
+  },
+  {
+    score: 4,
+    labels: [
+      "Four crows. Below average, but the effort is noted.",
+      "4/10 again. The crows respect the effort, not the score.",
+      "Four crows, again. The crows are getting impatient."
+    ],
+    cta: 'The Crows want you to do better. <a href="https://mplscitysc.com" target="_blank">mplscitysc.com</a>'
+  },
+  {
+    score: 5,
+    labels: [
+      "Five crows. Exactly average. The crows shrug.",
+      "Back for more? Still 5/10. The crows continue to shrug.",
+      "Five crows, three times. A perfectly mediocre commitment."
+    ],
+    cta: 'Right in the middle. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> is anything but average.'
+  },
+  {
+    score: 6,
+    labels: [
+      "Six crows. Above average. The murder takes notice.",
+      "Back for more? 6/10 again. The murder is cautiously optimistic.",
+      "Six crows, multiple tries. The murder has warmed to you."
+    ],
+    cta: 'Getting there. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> sees your potential.'
+  },
+  {
+    score: 7,
+    labels: [
+      "Seven crows. Crow-curious and capable.",
+      "Back for more? 7/10 again. Dependably crow-aware.",
+      "Seven crows, three times. The crows are starting to trust you."
+    ],
+    cta: 'You know the Crows. Now come see them. <a href="https://mplscitysc.com" target="_blank">mplscitysc.com</a>'
+  },
+  {
+    score: 8,
+    labels: [
+      "Eight crows. Nearly crow-certified.",
+      "Back for more? 8/10 again. Two crows keep escaping you.",
+      "Eight crows, again. The same two crows are laughing at you."
+    ],
+    cta: 'So close. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> doesn\'t miss either.'
+  },
+  {
+    score: 9,
+    labels: [
+      "Nine crows. One slip. Agonizing.",
+      "Back for more? 9/10 again. One crow haunts you.",
+      "Nine crows, three times. That one crow lives rent-free in your head."
+    ],
+    cta: 'Almost a perfect murder. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> awaits.'
+  },
+  {
+    score: 10,
+    labels: [
+      "Certified Crow Expert. 🐦‍⬛",
+      "Perfect again. You are the crow.",
+      "Perfect, again. We\'re starting to think you ARE a crow."
+    ],
+    cta: 'You were made for this. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> awaits.'
+  }
+];
 
 const DEFAULT_MESSAGES = [
   "Congratulations, ASS. You should be proud.",
@@ -15,6 +118,7 @@ const DEFAULT_MESSAGES = [
 ];
 
 let celebrationMessages = [];
+let scoreTiers = [];
 
 function persistQuestions() {
   localStorage.setItem(QUESTIONS_KEY, JSON.stringify(questions));
@@ -23,6 +127,11 @@ function persistQuestions() {
 
 function persistMessages() {
   localStorage.setItem(MESSAGES_KEY, JSON.stringify(celebrationMessages));
+  showSaveIndicator();
+}
+
+function persistScoreTiers() {
+  localStorage.setItem(SCORE_TIERS_KEY, JSON.stringify(scoreTiers));
   showSaveIndicator();
 }
 
@@ -41,6 +150,15 @@ function loadMessagesFromStorage() {
     celebrationMessages = raw ? JSON.parse(raw) : [...DEFAULT_MESSAGES];
   } catch (e) {
     celebrationMessages = [...DEFAULT_MESSAGES];
+  }
+}
+
+function loadScoreTiersFromStorage() {
+  try {
+    const raw = localStorage.getItem(SCORE_TIERS_KEY);
+    scoreTiers = raw ? JSON.parse(raw) : DEFAULT_SCORE_TIERS.map(t => ({ ...t, labels: [...t.labels] }));
+  } catch (e) {
+    scoreTiers = DEFAULT_SCORE_TIERS.map(t => ({ ...t, labels: [...t.labels] }));
   }
 }
 
@@ -73,8 +191,10 @@ const contentLabel       = document.getElementById('contentLabel');
 const contentInput       = document.getElementById('contentInput');
 const contentUrl         = document.getElementById('contentUrl');
 const explanationInput   = document.getElementById('explanationInput');
+const questionNameInput  = document.getElementById('questionNameInput');
 const revealSection      = document.getElementById('revealSection');
 const revealImageInput   = document.getElementById('revealImageInput');
+const revealYoutubeInput = document.getElementById('revealYoutubeInput');
 const revealCaptionInput = document.getElementById('revealCaptionInput');
 const addQuestionBtn     = document.getElementById('addQuestionBtn');
 const clearFormBtn       = document.getElementById('clearFormBtn');
@@ -110,10 +230,11 @@ const zoomOptions      = document.getElementById('zoomOptions');
 const zoomLevelInput   = document.getElementById('zoomLevelInput');
 const zoomOriginXInput = document.getElementById('zoomOriginXInput');
 const zoomOriginYInput = document.getElementById('zoomOriginYInput');
-const messageListEl  = document.getElementById('messageList');
-const messageInputEl = document.getElementById('messageInput');
-const addMessageBtn  = document.getElementById('addMessageBtn');
-const messageErrorEl = document.getElementById('messageError');
+const messageListEl    = document.getElementById('messageList');
+const messageInputEl   = document.getElementById('messageInput');
+const addMessageBtn    = document.getElementById('addMessageBtn');
+const messageErrorEl   = document.getElementById('messageError');
+const scoreTierListEl  = document.getElementById('scoreTierList');
 
 // ======================
 //  TYPE SELECTOR
@@ -209,8 +330,8 @@ function initFileUpload() {
 }
 
 function updateRevealVisibility() {
-  // YouTube reveals itself; text has no media to reveal
-  if (currentType === 'text' || currentType === 'youtube') {
+  // YouTube reveals itself via the cover lift; all other types support a reveal
+  if (currentType === 'youtube') {
     revealSection.classList.add('hidden');
   } else {
     revealSection.classList.remove('hidden');
@@ -260,6 +381,7 @@ function updatePreview() {
   const content     = getActiveContent();
   const explanation = explanationInput.value.trim();
   const revealImg   = revealImageInput.value.trim();
+  const revealYt    = revealYoutubeInput.value.trim();
   const revealCap   = revealCaptionInput.value.trim();
 
   // Reset media
@@ -306,14 +428,16 @@ function updatePreview() {
   previewExplanation.textContent = explanation;
 
   // Reveal block
-  if (revealImg || revealCap) {
+  if (revealImg || revealYt || revealCap) {
     if (revealImg) {
       previewRevealImg.src = revealImg;
       previewRevealImg.classList.remove('hidden');
     } else {
       previewRevealImg.classList.add('hidden');
     }
-    previewRevealCaption.textContent = revealCap || '';
+    previewRevealCaption.textContent = revealYt
+      ? `▶ YouTube reveal: ${revealYt}${revealCap ? '\n' + revealCap : ''}`
+      : (revealCap || '');
     previewRevealBlock.classList.remove('hidden');
   } else {
     previewRevealBlock.classList.add('hidden');
@@ -326,7 +450,7 @@ function updatePreview() {
 }
 
 function initLivePreview() {
-  [contentInput, contentUrl, explanationInput, revealImageInput, revealCaptionInput, startSecondsInput]
+  [contentInput, contentUrl, explanationInput, revealImageInput, revealYoutubeInput, revealCaptionInput, startSecondsInput]
     .forEach(el => el.addEventListener('input', updatePreview));
 }
 
@@ -361,12 +485,17 @@ function buildQuestionObject() {
     explanation: explanationInput.value.trim()
   };
 
+  const nameVal = questionNameInput.value.trim();
+  if (nameVal) obj.name = nameVal;
+
   const revealImg = revealImageInput.value.trim();
+  const revealYt  = revealYoutubeInput.value.trim();
   const revealCap = revealCaptionInput.value.trim();
   const dateVal   = dateInput.value.trim();
 
-  if (revealImg) obj.revealImage   = revealImg;
-  if (revealCap) obj.revealCaption = revealCap;
+  if (revealImg) obj.revealImage      = revealImg;
+  if (revealYt)  obj.revealYoutubeUrl = revealYt;
+  if (revealCap) obj.revealCaption    = revealCap;
 
   if (currentType === 'youtube') {
     const start = parseInt(startSecondsInput.value, 10);
@@ -437,7 +566,9 @@ function clearForm() {
   contentInput.value       = '';
   contentUrl.value         = '';
   explanationInput.value   = '';
+  questionNameInput.value  = '';
   revealImageInput.value   = '';
+  revealYoutubeInput.value = '';
   revealCaptionInput.value = '';
   dateInput.value          = '';
   startSecondsInput.value  = '';
@@ -487,8 +618,10 @@ function loadForEditing(index) {
 
   // Explanation, reveal & scheduling
   explanationInput.value   = q.explanation;
-  revealImageInput.value   = q.revealImage   || '';
-  revealCaptionInput.value = q.revealCaption || '';
+  questionNameInput.value  = q.name || '';
+  revealImageInput.value   = q.revealImage      || '';
+  revealYoutubeInput.value = q.revealYoutubeUrl || '';
+  revealCaptionInput.value = q.revealCaption    || '';
   startSecondsInput.value  = q.startSeconds || '';
   endSecondsInput.value    = q.endSeconds   || '';
   zoomRevealToggle.checked = !!q.zoomReveal;
@@ -554,9 +687,9 @@ function renderQuestionList() {
     item.draggable  = true;
     item.dataset.index = i;
 
-    const preview = q.content.length > 55
-      ? q.content.slice(0, 55) + '…'
-      : q.content;
+    const preview = q.name
+      ? q.name
+      : (q.content.length > 55 ? q.content.slice(0, 55) + '…' : q.content);
 
     const statusLabel = (q.status || 'active');
     const dateLabel   = q.date ? ` · ${q.date}` : '';
@@ -670,6 +803,86 @@ function handleAddMessage() {
 }
 
 // ======================
+//  SCORE TIERS
+// ======================
+
+function renderScoreTierList() {
+  if (!scoreTierListEl) return;
+  scoreTierListEl.innerHTML = '';
+
+  scoreTiers.forEach((tier, i) => {
+    const card = document.createElement('div');
+    card.className = 'question-item';
+    card.style.flexDirection = 'column';
+    card.style.alignItems = 'stretch';
+    card.style.gap = '10px';
+    card.style.padding = '14px';
+
+    const labelDescriptions = ['1st play', '2nd play', '3rd+ play'];
+
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <strong style="font-size:1rem">Score: ${tier.score}</strong>
+        <button class="item-btn delete tier-delete-btn" data-index="${i}">Delete</button>
+      </div>
+      ${tier.labels.map((lbl, li) => `
+        <div>
+          <label class="field-label" style="font-size:0.75rem;margin-bottom:4px">${labelDescriptions[li]}</label>
+          <input class="creator-input tier-label-input" data-tier="${i}" data-label="${li}"
+                 value="${escapeHtml(lbl)}" style="width:100%;box-sizing:border-box">
+        </div>
+      `).join('')}
+      <div>
+        <label class="field-label" style="font-size:0.75rem;margin-bottom:4px">CTA <span style="font-weight:400;opacity:0.6">(supports HTML)</span></label>
+        <textarea class="creator-input tier-cta-input" data-tier="${i}"
+                  rows="2" style="width:100%;box-sizing:border-box;resize:vertical">${escapeHtml(tier.cta)}</textarea>
+      </div>
+    `;
+
+    card.querySelector('.tier-delete-btn').addEventListener('click', () => {
+      scoreTiers.splice(i, 1);
+      // Renumber scores
+      scoreTiers.forEach((t, idx) => { t.score = idx; });
+      renderScoreTierList();
+      persistScoreTiers();
+    });
+
+    card.querySelectorAll('.tier-label-input').forEach(input => {
+      input.addEventListener('input', () => {
+        const ti = parseInt(input.dataset.tier);
+        const li = parseInt(input.dataset.label);
+        scoreTiers[ti].labels[li] = input.value;
+        persistScoreTiers();
+      });
+    });
+
+    card.querySelector('.tier-cta-input').addEventListener('input', e => {
+      const ti = parseInt(e.target.dataset.tier);
+      scoreTiers[ti].cta = e.target.value;
+      persistScoreTiers();
+    });
+
+    scoreTierListEl.appendChild(card);
+  });
+
+  // Add tier button
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn secondary';
+  addBtn.textContent = `+ Add Score ${scoreTiers.length}`;
+  addBtn.style.marginTop = '8px';
+  addBtn.addEventListener('click', () => {
+    scoreTiers.push({
+      score: scoreTiers.length,
+      labels: ['', '', ''],
+      cta: ''
+    });
+    renderScoreTierList();
+    persistScoreTiers();
+  });
+  scoreTierListEl.appendChild(addBtn);
+}
+
+// ======================
 //  CODE GENERATION
 // ======================
 
@@ -758,7 +971,7 @@ function fallbackCopy(text) {
 }
 
 function exportJson() {
-  const payload = { questions, celebrationMessages };
+  const payload = { questions, celebrationMessages, scoreTiers };
   const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
@@ -794,6 +1007,7 @@ function init() {
   // Load any previously saved data
   loadQuestionsFromStorage();
   loadMessagesFromStorage();
+  loadScoreTiersFromStorage();
   initZoom();
   initFileUpload();
 
@@ -803,6 +1017,7 @@ function init() {
   updatePreview();
   renderQuestionList();
   renderMessageList();
+  renderScoreTierList();
 }
 
 init();

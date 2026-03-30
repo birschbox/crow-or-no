@@ -4,6 +4,53 @@ const config = {
   questionsPerDay: 5
 };
 
+// ======================
+//  SUPABASE
+// ======================
+
+const SUPABASE_URL = "https://uxmpyhmvbthydjpqxudi.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4bXB5aG12YnRoeWRqcHF4dWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTM3MTksImV4cCI6MjA5MDQ2OTcxOX0.TETB3meJmd1Z1ERckNvdPx3z4-yvZhHympptPXvlOXM";
+
+function sbHeaders(extra = {}) {
+  return {
+    "apikey": SUPABASE_KEY,
+    "Authorization": `Bearer ${SUPABASE_KEY}`,
+    "Content-Type": "application/json",
+    ...extra
+  };
+}
+
+async function sbSubmitScore(initials, scoreVal, timeSecs, gameDate) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard`, {
+    method: "POST",
+    headers: sbHeaders({ "Prefer": "return=representation" }),
+    body: JSON.stringify({ initials, score: scoreVal, time_secs: timeSecs, game_date: gameDate })
+  });
+  if (!res.ok) throw new Error("submit failed");
+  const rows = await res.json();
+  return rows[0];
+}
+
+async function sbFetchTop(gameDate, limit = 10) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/leaderboard?game_date=eq.${gameDate}&order=score.desc,time_secs.asc&limit=${limit}&select=initials,score,time_secs`,
+    { headers: sbHeaders() }
+  );
+  if (!res.ok) throw new Error("fetch top failed");
+  return res.json();
+}
+
+async function sbFetchRank(gameDate, scoreVal, timeSecs) {
+  const base = `${SUPABASE_URL}/rest/v1/leaderboard`;
+  const h = sbHeaders({ "Prefer": "count=exact" });
+  const [r1, r2] = await Promise.all([
+    fetch(`${base}?game_date=eq.${gameDate}&score=gt.${scoreVal}&select=id`, { headers: h }),
+    fetch(`${base}?game_date=eq.${gameDate}&score=eq.${scoreVal}&time_secs=lt.${timeSecs}&select=id`, { headers: h })
+  ]);
+  const parseCount = r => parseInt(r.headers.get("Content-Range")?.split("/")[1] || "0");
+  return parseCount(r1) + parseCount(r2) + 1;
+}
+
 const CELEBRATION_MESSAGES_FALLBACK = [
   "Congratulations, ASS. You should be proud.",
   "Not bad for an ASS.",
@@ -14,7 +61,8 @@ const CELEBRATION_MESSAGES_FALLBACK = [
 ];
 
 let celebrationMessages = [...CELEBRATION_MESSAGES_FALLBACK];
-let lastSavedAt = null;
+let mySubmittedEntry = null;
+let mySubmittedRank  = null;
 
 const QUESTIONS_FALLBACK = [
   {
@@ -61,8 +109,10 @@ const gameEl = document.getElementById("game");
 const resultsEl = document.getElementById("results");
 const scoreTextEl = document.getElementById("scoreText");
 const answerButtons = document.querySelectorAll(".buttons .btn");
-const revealImageEl   = document.getElementById("revealImage");
-const revealCaptionEl = document.getElementById("revealCaption");
+const revealImageEl      = document.getElementById("revealImage");
+const revealYtContainerEl = document.getElementById("revealYtContainer");
+const revealYtPlayerEl    = document.getElementById("revealYtPlayer");
+const revealCaptionEl    = document.getElementById("revealCaption");
 const endedEl     = document.getElementById("ended");
 const revealCtaEl = document.getElementById("revealCta");
 const nextBtn     = document.getElementById("nextBtn");
@@ -181,6 +231,9 @@ async function initGame() {
       if (data.celebrationMessages?.length > 0) {
         celebrationMessages = data.celebrationMessages;
       }
+      if (data.scoreTiers?.length > 0) {
+        scoreTiers = data.scoreTiers;
+      }
     }
   } catch (e) {
     questions = QUESTIONS_FALLBACK;
@@ -237,6 +290,8 @@ function loadQuestion() {
   nextBtn.classList.add("hidden");
   revealImageEl.classList.add("hidden");
   revealImageEl.src = "";
+  revealYtContainerEl.classList.add("hidden");
+  revealYtPlayerEl.src = "";
   revealCaptionEl.textContent = "";
   revealCaptionEl.classList.add("hidden");
 
@@ -329,7 +384,11 @@ function submitAnswer(answer) {
     zoomImageEl.classList.add("revealed");
   }
 
-  if (q.revealImage) {
+  if (q.revealYoutubeUrl) {
+    const id = extractYouTubeId(q.revealYoutubeUrl);
+    revealYtPlayerEl.src = `https://www.youtube.com/embed/${id}`;
+    revealYtContainerEl.classList.remove("hidden");
+  } else if (q.revealImage) {
     revealImageEl.src = q.revealImage;
     revealImageEl.classList.remove("hidden");
   }
@@ -360,11 +419,11 @@ function advanceQuestion() {
 //  SCORE TIERS
 // ======================
 
-const scoreTiers = [
+let scoreTiers = [
   {
     score: 0,
     labels: [
-      "Zero crows. Not even a pigeon.",
+      "Zero crows. Not even a feather.",
       "Still zero. The crows have forgotten you.",
       "Zero again. Are you okay?"
     ],
@@ -373,44 +432,89 @@ const scoreTiers = [
   {
     score: 1,
     labels: [
-      "You spotted one crow. A fluke.",
-      "Back for more? Still just one. A consistent fluke.",
-      "One crow, again. The crows are keeping score."
+      "One crow. Technically a start.",
+      "Back for more? Still just one. The crows are not impressed.",
+      "One crow, again. Consistent in your inconsistency."
     ],
     cta: 'There\'s more to learn. Start at <a href="https://mplscitysc.com" target="_blank">mplscitysc.com</a>.'
   },
   {
     score: 2,
     labels: [
-      "You know a crow exists. Progress.",
-      "Back for more? Still 2/5. The crows remember.",
-      "Two crows, three times. We respect the commitment."
+      "Two crows. The birds are barely aware of you.",
+      "Back for more? 2/10 again. The crows have noted this.",
+      "Two crows, three times. The murder is unmoved."
     ],
     cta: 'Keep going. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> rewards curiosity.'
   },
   {
     score: 3,
     labels: [
-      "Crow-curious. We respect it.",
-      "Back for more? 3/5 again. Crow-curious and persistent.",
-      "Three crows, multiple tries. You are Crow-curious. Accept it."
+      "Three crows. A flicker of crow awareness.",
+      "Back for more? 3/10 again. A flicker, persisting.",
+      "Three crows, multiple tries. The flicker remains unignited."
     ],
     cta: 'Want to know more? The Crows play in Minneapolis. <a href="https://mplscitysc.com" target="_blank">mplscitysc.com</a>'
   },
   {
     score: 4,
     labels: [
-      "Almost crow-certified.",
-      "Back for more? Still one crow short. Agonizing.",
-      "4/5 again. One crow keeps escaping you."
+      "Four crows. Below average, but the effort is noted.",
+      "4/10 again. The crows respect the effort, not the score.",
+      "Four crows, again. The crows are getting impatient."
     ],
-    cta: 'One more thing to learn: <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a>. See you April 1st.'
+    cta: 'The Crows want you to do better. <a href="https://mplscitysc.com" target="_blank">mplscitysc.com</a>'
   },
   {
     score: 5,
     labels: [
-      "Certified Crow Expert 🐦‍⬛",
-      "Back for more? Perfect again. You are the crow.",
+      "Five crows. Exactly average. The crows shrug.",
+      "Back for more? Still 5/10. The crows continue to shrug.",
+      "Five crows, three times. A perfectly mediocre commitment."
+    ],
+    cta: 'Right in the middle. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> is anything but average.'
+  },
+  {
+    score: 6,
+    labels: [
+      "Six crows. Above average. The murder takes notice.",
+      "Back for more? 6/10 again. The murder is cautiously optimistic.",
+      "Six crows, multiple tries. The murder has warmed to you."
+    ],
+    cta: 'Getting there. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> sees your potential.'
+  },
+  {
+    score: 7,
+    labels: [
+      "Seven crows. Crow-curious and capable.",
+      "Back for more? 7/10 again. Dependably crow-aware.",
+      "Seven crows, three times. The crows are starting to trust you."
+    ],
+    cta: 'You know the Crows. Now come see them. <a href="https://mplscitysc.com" target="_blank">mplscitysc.com</a>'
+  },
+  {
+    score: 8,
+    labels: [
+      "Eight crows. Nearly crow-certified.",
+      "Back for more? 8/10 again. Two crows keep escaping you.",
+      "Eight crows, again. The same two crows are laughing at you."
+    ],
+    cta: 'So close. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> doesn\'t miss either.'
+  },
+  {
+    score: 9,
+    labels: [
+      "Nine crows. One slip. Agonizing.",
+      "Back for more? 9/10 again. One crow haunts you.",
+      "Nine crows, three times. That one crow lives rent-free in your head."
+    ],
+    cta: 'Almost a perfect murder. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> awaits.'
+  },
+  {
+    score: 10,
+    labels: [
+      "Certified Crow Expert. 🐦‍⬛",
+      "Perfect again. You are the crow.",
       "Perfect, again. We're starting to think you ARE a crow."
     ],
     cta: 'You were made for this. <a href="https://mplscitysc.com" target="_blank">Minneapolis City SC</a> awaits.'
@@ -463,7 +567,8 @@ function showResults() {
     saveScoreTrigger.disabled = false;
   }
   if (scoreSavedMsgEl) scoreSavedMsgEl.textContent = "";
-  lastSavedAt = null;
+  mySubmittedEntry = null;
+  mySubmittedRank  = null;
 
   // Collapse leaderboard
   if (leaderboardPanelEl) leaderboardPanelEl.classList.add("hidden");
@@ -511,58 +616,66 @@ Do you know crow?`;
 //  LEADERBOARD
 // ======================
 
-const LEADERBOARD_KEY = "crow_leaderboard";
-const MAX_ENTRIES = 5;
-
-function getLeaderboard() {
-  try {
-    return JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || "[]");
-  } catch (e) {
-    return [];
-  }
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
-function saveLeaderboard(entries) {
-  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
-}
-
-function addLeaderboardEntry(initials, scoreVal, timeVal, savedAt) {
-  const entries = getLeaderboard();
-  entries.push({ initials, score: scoreVal, time: timeVal, savedAt });
-
-  // Sort: higher score first, then lower time
-  entries.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    return a.time - b.time;
-  });
-
-  // Keep top 5
-  const trimmed = entries.slice(0, MAX_ENTRIES);
-  saveLeaderboard(trimmed);
-  return trimmed;
-}
-
-function renderLeaderboard() {
+async function renderLeaderboard() {
   if (!leaderboardListEl) return;
-  const entries = getLeaderboard();
+  leaderboardListEl.innerHTML = '<p class="lb-empty">Loading...</p>';
+
+  let entries;
+  try {
+    entries = await sbFetchTop(getTodayString(), 10);
+  } catch (e) {
+    leaderboardListEl.innerHTML = '<p class="lb-empty">Could not load scores.</p>';
+    return;
+  }
 
   if (entries.length === 0) {
     leaderboardListEl.innerHTML = '<p class="lb-empty">No scores yet. Be the first!</p>';
     return;
   }
 
-  leaderboardListEl.innerHTML = entries.map((e, i) => {
-    const isOwn = lastSavedAt && e.savedAt === lastSavedAt;
-    const youLabel = isOwn ? ' <span class="lb-you">⬅️ Your Score</span>' : '';
+  const myInTop = mySubmittedEntry && entries.some(
+    e => e.initials === mySubmittedEntry.initials &&
+         e.score    === mySubmittedEntry.score &&
+         e.time_secs === mySubmittedEntry.time_secs
+  );
+
+  let html = entries.map((e, i) => {
+    const isOwn = mySubmittedEntry &&
+                  e.initials  === mySubmittedEntry.initials &&
+                  e.score     === mySubmittedEntry.score &&
+                  e.time_secs === mySubmittedEntry.time_secs;
+    const youLabel = isOwn ? ' <span class="lb-you">⬅ You</span>' : '';
     return `
-      <div class="lb-row ${i === 0 ? "lb-top" : ""}">
-        <span class="lb-rank">${i + 1}</span>
-        <span class="lb-name">ASS${youLabel}</span>
+      <div class="lb-row ${i === 0 ? "lb-top" : ""}${isOwn ? " lb-own" : ""}">
+        <span class="lb-rank">#${i + 1}</span>
+        <span class="lb-name">${escapeHtml(e.initials)}${youLabel}</span>
         <span class="lb-score">${e.score}/${activeQuestions.length}</span>
-        <span class="lb-time">${formatTime(e.time)}</span>
+        <span class="lb-time">${formatTime(e.time_secs)}</span>
       </div>
     `;
   }).join("");
+
+  if (mySubmittedEntry && !myInTop && mySubmittedRank) {
+    html += `
+      <div class="lb-separator"></div>
+      <div class="lb-row lb-own">
+        <span class="lb-rank">#${mySubmittedRank}</span>
+        <span class="lb-name">${escapeHtml(mySubmittedEntry.initials)} <span class="lb-you">⬅ You</span></span>
+        <span class="lb-score">${mySubmittedEntry.score}/${activeQuestions.length}</span>
+        <span class="lb-time">${formatTime(mySubmittedEntry.time_secs)}</span>
+      </div>
+    `;
+  }
+
+  leaderboardListEl.innerHTML = html;
 }
 
 // ======================
@@ -587,13 +700,25 @@ function showCelebrationModal() {
   celebrationModalEl.classList.remove("hidden");
 }
 
-function closeCelebrationModal() {
+async function closeCelebrationModal() {
   const initials = (initialsInputEl?.value.trim().toUpperCase() || "???").slice(0, 3);
-  const savedAt = Date.now();
-  lastSavedAt = savedAt;
-  addLeaderboardEntry(initials, score, elapsedSeconds, savedAt);
+  const modalBtn = document.getElementById("modalCloseBtn");
+
+  if (modalBtn) { modalBtn.disabled = true; modalBtn.textContent = "Saving…"; }
+
+  try {
+    const gameDate = getTodayString();
+    await sbSubmitScore(initials, score, elapsedSeconds, gameDate);
+    mySubmittedEntry = { initials, score, time_secs: elapsedSeconds };
+    mySubmittedRank  = await sbFetchRank(gameDate, score, elapsedSeconds);
+  } catch (e) {
+    // Submission failed — still close modal, just no leaderboard entry
+    mySubmittedEntry = null;
+    mySubmittedRank  = null;
+  }
 
   celebrationModalEl.classList.add("hidden");
+  if (modalBtn) { modalBtn.disabled = false; modalBtn.textContent = "🐦‍⬛ Save Score"; }
   if (scoreSavedMsgEl) scoreSavedMsgEl.textContent = "Score saved! 🐦‍⬛";
   renderLeaderboard();
 }
