@@ -190,8 +190,10 @@ const answerSelector     = document.getElementById('answerSelector');
 const contentLabel       = document.getElementById('contentLabel');
 const contentInput       = document.getElementById('contentInput');
 const contentUrl         = document.getElementById('contentUrl');
-const explanationInput   = document.getElementById('explanationInput');
-const questionNameInput  = document.getElementById('questionNameInput');
+const explanationInput          = document.getElementById('explanationInput');
+const explanationCorrectInput   = document.getElementById('explanationCorrectInput');
+const explanationIncorrectInput = document.getElementById('explanationIncorrectInput');
+const questionNameInput         = document.getElementById('questionNameInput');
 const revealSection      = document.getElementById('revealSection');
 const revealImageInput   = document.getElementById('revealImageInput');
 const revealYoutubeInput = document.getElementById('revealYoutubeInput');
@@ -450,7 +452,7 @@ function updatePreview() {
 }
 
 function initLivePreview() {
-  [contentInput, contentUrl, explanationInput, revealImageInput, revealYoutubeInput, revealCaptionInput, startSecondsInput]
+  [contentInput, contentUrl, explanationInput, explanationCorrectInput, explanationIncorrectInput, revealImageInput, revealYoutubeInput, revealCaptionInput, startSecondsInput]
     .forEach(el => el.addEventListener('input', updatePreview));
 }
 
@@ -484,6 +486,11 @@ function buildQuestionObject() {
     answer:      currentAnswer,
     explanation: explanationInput.value.trim()
   };
+
+  const expCorrect   = explanationCorrectInput.value.trim();
+  const expIncorrect = explanationIncorrectInput.value.trim();
+  if (expCorrect)   obj.explanationCorrect   = expCorrect;
+  if (expIncorrect) obj.explanationIncorrect = expIncorrect;
 
   const nameVal = questionNameInput.value.trim();
   if (nameVal) obj.name = nameVal;
@@ -563,10 +570,12 @@ function clearForm() {
   statusSelector.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
   statusSelector.querySelector('[data-status="active"]').classList.add('active');
 
-  contentInput.value       = '';
-  contentUrl.value         = '';
-  explanationInput.value   = '';
-  questionNameInput.value  = '';
+  contentInput.value              = '';
+  contentUrl.value                = '';
+  explanationInput.value          = '';
+  explanationCorrectInput.value   = '';
+  explanationIncorrectInput.value = '';
+  questionNameInput.value         = '';
   revealImageInput.value   = '';
   revealYoutubeInput.value = '';
   revealCaptionInput.value = '';
@@ -617,8 +626,10 @@ function loadForEditing(index) {
   });
 
   // Explanation, reveal & scheduling
-  explanationInput.value   = q.explanation;
-  questionNameInput.value  = q.name || '';
+  explanationInput.value          = q.explanation;
+  explanationCorrectInput.value   = q.explanationCorrect   || '';
+  explanationIncorrectInput.value = q.explanationIncorrect || '';
+  questionNameInput.value         = q.name || '';
   revealImageInput.value   = q.revealImage      || '';
   revealYoutubeInput.value = q.revealYoutubeUrl || '';
   revealCaptionInput.value = q.revealCaption    || '';

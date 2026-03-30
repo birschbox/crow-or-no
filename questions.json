@@ -79,8 +79,8 @@
       "name": "Grackle zoomed",
       "zoomReveal": true,
       "zoomLevel": 20,
-      "zoomOriginX": 64,
-      "zoomOriginY": 32,
+      "zoomOriginX": 50,
+      "zoomOriginY": 50,
       "status": "active"
     },
     {

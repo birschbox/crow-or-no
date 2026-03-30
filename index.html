@@ -40,11 +40,17 @@
           <iframe id="revealYtPlayer" class="yt-iframe" frameborder="0"
                   allow="autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
-        <p id="revealCaption" class="explanation hidden"></p>
+        <p id="revealCaption" class="reveal-caption hidden"></p>
 
       <div class="buttons">
-        <button onclick="submitAnswer('crow')" class="btn crow">Crow</button>
-        <button onclick="submitAnswer('no')" class="btn no">No</button>
+        <div class="btn-wrap">
+          <span class="your-answer-label hidden">Your Answer</span>
+          <button onclick="submitAnswer('crow')" class="btn crow">Crow</button>
+        </div>
+        <div class="btn-wrap">
+          <span class="your-answer-label hidden">Your Answer</span>
+          <button onclick="submitAnswer('no')" class="btn no">No</button>
+        </div>
       </div>
 
       <button id="nextBtn" class="btn next hidden"></button>

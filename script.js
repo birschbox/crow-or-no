@@ -356,6 +356,7 @@ function resetAnswerButtons() {
   answerButtons.forEach(btn => {
     btn.classList.remove("correct", "wrong");
   });
+  document.querySelectorAll(".your-answer-label").forEach(el => el.classList.add("hidden"));
 }
 
 function submitAnswer(answer) {
@@ -369,12 +370,19 @@ function submitAnswer(answer) {
     score++;
     feedbackEl.textContent = "Correct 🐦‍⬛";
     resultsGrid.push("🐦‍⬛");
+    explanationEl.textContent = q.explanationCorrect || q.explanation;
   } else {
     feedbackEl.textContent = "Wrong ❌";
     resultsGrid.push("❌");
+    explanationEl.textContent = q.explanationIncorrect || q.explanation;
+    // Show "Your Answer" above the button they pressed
+    answerButtons.forEach(btn => {
+      const btnAnswer = btn.getAttribute("onclick").includes("'crow'") ? "crow" : "no";
+      if (btnAnswer === answer) {
+        btn.closest(".btn-wrap")?.querySelector(".your-answer-label")?.classList.remove("hidden");
+      }
+    });
   }
-
-  explanationEl.textContent = q.explanation;
 
   if (q.type === "youtube") {
     revealYouTube();
@@ -582,8 +590,12 @@ function showResults() {
 // ======================
 
 function createShareButton() {
+  const gridRows = [];
+  for (let i = 0; i < resultsGrid.length; i += 5) {
+    gridRows.push(resultsGrid.slice(i, i + 5).join(""));
+  }
   const shareText = `🐦‍⬛ ${score}/${activeQuestions.length}
-${resultsGrid.join("")}
+${gridRows.join("\n")}
 
 Do you know crow?`;
 
