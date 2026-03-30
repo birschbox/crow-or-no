@@ -1,7 +1,7 @@
 const config = {
   startDate:       "2026-04-01",
   endDate:         "2026-04-08",
-  questionsPerDay: 5
+  questionsPerDay: 10
 };
 
 // ======================
