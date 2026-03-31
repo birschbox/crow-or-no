@@ -20,6 +20,10 @@
       padding: 30px 0;
     }
 
+    .archived-item {
+      opacity: 0.45;
+    }
+
     .creator-container {
       max-width: 680px;
       text-align: left;
@@ -438,6 +442,7 @@
       <div class="type-selector" id="statusSelector">
         <button class="type-btn active" data-status="active">Active</button>
         <button class="type-btn" data-status="backlog">Backlog</button>
+        <button class="type-btn" data-status="archived">Archived</button>
       </div>
     </div>
 
@@ -542,6 +547,18 @@
       <p class="copy-feedback" id="copyFeedback"></p>
     </div>
 
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <p class="modal-message">What would you like to do with this question?</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+        <button class="btn" id="archiveConfirmBtn">Move to Archive</button>
+        <button class="btn secondary" id="deleteConfirmBtn" style="border-color:#c0392b;color:#c0392b">Delete Forever</button>
+        <button class="btn secondary" id="deleteCancelBtn">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <script src="creator.js"></script>

@@ -659,13 +659,42 @@ function loadForEditing(index) {
 //  DELETE
 // ======================
 
+let pendingDeleteIndex = -1;
+
 function deleteQuestion(index) {
+  pendingDeleteIndex = index;
+  document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+  pendingDeleteIndex = -1;
+  document.getElementById('deleteModal').classList.add('hidden');
+}
+
+function confirmArchive() {
+  if (pendingDeleteIndex < 0) return;
+  questions[pendingDeleteIndex].status = 'archived';
+  if (editingIndex === pendingDeleteIndex) {
+    currentStatus = 'archived';
+    statusSelector.querySelectorAll('.type-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.status === 'archived');
+    });
+  }
+  closeDeleteModal();
+  renderQuestionList();
+  persistQuestions();
+}
+
+function confirmDelete() {
+  if (pendingDeleteIndex < 0) return;
+  const index = pendingDeleteIndex;
   if (editingIndex === index) {
     clearForm();
   } else if (editingIndex > index) {
     editingIndex--;
   }
   questions.splice(index, 1);
+  closeDeleteModal();
   renderQuestionList();
   persistQuestions();
 }
@@ -683,7 +712,10 @@ function escapeHtml(str) {
 }
 
 function renderQuestionList() {
-  questionCount.textContent = questions.length;
+  const active   = questions.map((q, i) => ({ q, i })).filter(({ q }) => q.status !== 'archived');
+  const archived = questions.map((q, i) => ({ q, i })).filter(({ q }) => q.status === 'archived');
+
+  questionCount.textContent = active.length;
 
   if (questions.length === 0) {
     questionList.innerHTML = '<p class="empty-state">No questions yet. Add one above.</p>';
@@ -692,10 +724,10 @@ function renderQuestionList() {
 
   questionList.innerHTML = '';
 
-  questions.forEach((q, i) => {
+  const renderItem = ({ q, i }) => {
     const item = document.createElement('div');
-    item.className = 'question-item';
-    item.draggable  = true;
+    item.className = 'question-item' + (q.status === 'archived' ? ' archived-item' : '');
+    item.draggable  = q.status !== 'archived';
     item.dataset.index = i;
 
     const preview = q.name
@@ -706,7 +738,7 @@ function renderQuestionList() {
     const dateLabel   = q.date ? ` · ${q.date}` : '';
 
     item.innerHTML = `
-      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <span class="drag-handle" title="Drag to reorder" style="${q.status === 'archived' ? 'opacity:0.2;cursor:default' : ''}">⠿</span>
       <span class="question-item-type">${q.type}</span>
       <span class="question-item-text">${escapeHtml(preview)}</span>
       <span class="question-item-answer">${q.answer.toUpperCase()}</span>
@@ -715,16 +747,29 @@ function renderQuestionList() {
       <button class="item-btn delete delete-btn" data-index="${i}">Delete</button>
     `;
 
-    item.addEventListener('dragstart', handleDragStart);
-    item.addEventListener('dragover',  handleDragOver);
-    item.addEventListener('drop',      handleDrop);
-    item.addEventListener('dragend',   handleDragEnd);
+    if (q.status !== 'archived') {
+      item.addEventListener('dragstart', handleDragStart);
+      item.addEventListener('dragover',  handleDragOver);
+      item.addEventListener('drop',      handleDrop);
+      item.addEventListener('dragend',   handleDragEnd);
+    }
 
     item.querySelector('.edit-btn').addEventListener('click', () => loadForEditing(i));
     item.querySelector('.delete-btn').addEventListener('click', () => deleteQuestion(i));
 
     questionList.appendChild(item);
-  });
+  };
+
+  active.forEach(renderItem);
+
+  if (archived.length > 0) {
+    const divider = document.createElement('p');
+    divider.className = 'empty-state';
+    divider.style.cssText = 'margin-top:16px;margin-bottom:4px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.3';
+    divider.textContent = `Archive (${archived.length})`;
+    questionList.appendChild(divider);
+    archived.forEach(renderItem);
+  }
 }
 
 // ======================
@@ -1008,12 +1053,18 @@ function init() {
   initStatusSelector();
   initLivePreview();
 
-  addQuestionBtn.addEventListener('click', handleAddOrUpdate);
-  clearFormBtn.addEventListener('click',   clearForm);
-  exportJsonBtn.addEventListener('click',  exportJson);
-  generateBtn.addEventListener('click',    generateCode);
-  copyBtn.addEventListener('click',        copyToClipboard);
-  addMessageBtn.addEventListener('click',  handleAddMessage);
+  addQuestionBtn.addEventListener('click',   handleAddOrUpdate);
+  clearFormBtn.addEventListener('click',    clearForm);
+  exportJsonBtn.addEventListener('click',   exportJson);
+  generateBtn.addEventListener('click',     generateCode);
+  copyBtn.addEventListener('click',         copyToClipboard);
+  addMessageBtn.addEventListener('click',   handleAddMessage);
+  document.getElementById('archiveConfirmBtn').addEventListener('click', confirmArchive);
+  document.getElementById('deleteConfirmBtn').addEventListener('click',  confirmDelete);
+  document.getElementById('deleteCancelBtn').addEventListener('click',   closeDeleteModal);
+  document.getElementById('deleteModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeDeleteModal();
+  });
 
   // Load any previously saved data
   loadQuestionsFromStorage();

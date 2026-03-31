@@ -247,9 +247,9 @@ async function initGame() {
     return;
   }
 
-  // Filter: skip backlog; skip date-assigned questions that don't match today
+  // Filter: skip backlog/archived; skip date-assigned questions that don't match today
   const pool = questions.filter(q => {
-    if (q.status === "backlog") return false;
+    if (q.status === "backlog" || q.status === "archived") return false;
     if (q.date && q.date !== today) return false;
     return true;
   });
