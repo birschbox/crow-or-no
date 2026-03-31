@@ -26,8 +26,8 @@
       "answer": "no",
       "explanation": "A raven was quothed saying that, famously.",
       "name": "Nevermore",
-      "revealImage": "https://pseudopod.org/wp-content/uploads/2020/02/poeedgarallan-768x1024-1-660x880.jpg",
-      "revealCaption": "This is Edgar Allen Poe, not a raven.",
+      "revealImage": "images/edgarallenpoe.png",
+      "revealCaption": "This is Edgar Allen Poe, neither a raven nor a crow.",
       "status": "active"
     },
     {
