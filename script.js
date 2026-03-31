@@ -604,7 +604,8 @@ function createShareButton() {
   const shareText = `🐦‍⬛ ${score}/${activeQuestions.length}
 ${gridRows.join("\n")}
 
-Do you know crow?`;
+Do you know crow?
+croworno.com`;
 
   if (!shareButton) {
     shareButton = document.createElement("button");
