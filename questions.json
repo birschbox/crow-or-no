@@ -55,7 +55,7 @@
       "answer": "crow",
       "explanation": "This is Crow T. Robot from Mystery Science Theater 3000, which premiered on KTMA-TV in St. Paul, MN in 1988.",
       "name": "Crow T Robot",
-      "revealImage": "images/Crowsolo.webp",
+      "revealImage": "images/crowsolo.webp",
       "revealCaption": "Robots can be crows too",
       "status": "active"
     },
@@ -84,7 +84,7 @@
       "zoomReveal": true,
       "zoomLevel": 20,
       "zoomOriginX": 64,
-      "zoomOriginY": 32,
+      "zoomOriginY": 17,
       "status": "active"
     },
     {
