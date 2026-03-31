@@ -233,6 +233,7 @@ const zoomLevelInput   = document.getElementById('zoomLevelInput');
 const zoomOriginXInput = document.getElementById('zoomOriginXInput');
 const zoomOriginYInput = document.getElementById('zoomOriginYInput');
 const zoomPreviewPanels        = document.getElementById('zoomPreviewPanels');
+const creatorZoomWrap          = document.getElementById('creatorZoomWrap');
 const creatorZoomImage         = document.getElementById('creatorZoomImage');
 const creatorRevealedImage     = document.getElementById('creatorRevealedImage');
 const creatorRevealedContainer = document.getElementById('creatorRevealedContainer');
@@ -305,12 +306,14 @@ function updateZoomPreview(src) {
     return;
   }
   zoomPreviewPanels.classList.remove('hidden');
-  const x     = (zoomOriginXInput.value !== '' ? zoomOriginXInput.value : 50) + '%';
-  const y     = (zoomOriginYInput.value !== '' ? zoomOriginYInput.value : 50) + '%';
-  const level = parseFloat(zoomLevelInput.value) || 12;
-  creatorZoomImage.style.setProperty('--zoom-x', x);
-  creatorZoomImage.style.setProperty('--zoom-y', y);
-  creatorZoomImage.style.setProperty('--zoom-level', level);
+  const S  = parseFloat(zoomLevelInput.value) || 12;
+  const ox = (zoomOriginXInput.value !== '' ? parseFloat(zoomOriginXInput.value) : 50) / 100;
+  const oy = (zoomOriginYInput.value !== '' ? parseFloat(zoomOriginYInput.value) : 50) / 100;
+  const tx = S * (0.5 - ox) * 100;
+  const ty = S * (0.5 - oy) * 100;
+  creatorZoomWrap.style.transition = 'none';
+  creatorZoomWrap.style.transform = `translate(${tx}%, ${ty}%)`;
+  creatorZoomImage.style.setProperty('--zoom-level', S);
   creatorZoomImage.src = src;
   creatorRevealedImage.src = src;
 }

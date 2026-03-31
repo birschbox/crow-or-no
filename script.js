@@ -133,6 +133,7 @@ const ytPlayerEl           = document.getElementById("ytPlayer");
 const ytCoverEl            = document.getElementById("ytCover");
 const ytPlayBtnEl          = document.getElementById("ytPlayBtn");
 const zoomContainerEl      = document.getElementById("zoomContainer");
+const zoomWrapEl           = document.getElementById("zoomWrap");
 const zoomImageEl          = document.getElementById("zoomImage");
 
 let shareButton;
@@ -284,6 +285,7 @@ function loadQuestion() {
   zoomContainerEl.classList.add("hidden");
   zoomImageEl.src = "";
   zoomImageEl.classList.remove("revealed");
+  zoomWrapEl.style.transform = "";
   explanationEl.textContent = "";
   feedbackEl.textContent = "";
   feedbackEl.classList.remove("show");
@@ -306,9 +308,13 @@ function loadQuestion() {
 
     if (q.type === "image") {
       if (q.zoomReveal) {
-        zoomContainerEl.style.setProperty("--zoom-x", (q.zoomOriginX ?? 50) + "%");
-        zoomContainerEl.style.setProperty("--zoom-y", (q.zoomOriginY ?? 50) + "%");
-        zoomContainerEl.style.setProperty("--zoom-level", q.zoomLevel ?? 12);
+        const S  = q.zoomLevel ?? 12;
+        const ox = (q.zoomOriginX ?? 50) / 100;
+        const oy = (q.zoomOriginY ?? 50) / 100;
+        const tx = S * (0.5 - ox) * 100;
+        const ty = S * (0.5 - oy) * 100;
+        zoomWrapEl.style.transform = `translate(${tx}%, ${ty}%)`;
+        zoomContainerEl.style.setProperty("--zoom-level", S);
         zoomImageEl.src = q.content;
         zoomContainerEl.classList.remove("hidden");
       } else {
@@ -389,6 +395,7 @@ function submitAnswer(answer) {
   }
 
   if (q.type === "image" && q.zoomReveal) {
+    zoomWrapEl.style.transform = "translate(0%, 0%)";
     zoomImageEl.classList.add("revealed");
   }
 

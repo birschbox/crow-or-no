@@ -370,14 +370,18 @@
           <div id="zoomPreviewPanels" class="hidden" style="display:flex;gap:10px;margin-top:14px">
             <div style="flex:1;min-width:0">
               <label class="field-label" style="font-size:0.7rem;margin-bottom:6px">Zoomed In</label>
-              <div class="zoom-container" style="cursor:default">
-                <img id="creatorZoomImage" class="zoom-image" alt="" />
+              <div class="zoom-container">
+                <div id="creatorZoomWrap" class="zoom-wrap">
+                  <img id="creatorZoomImage" class="zoom-image" alt="" />
+                </div>
               </div>
             </div>
             <div style="flex:1;min-width:0">
               <label class="field-label" style="font-size:0.7rem;margin-bottom:6px">Revealed — click to reposition</label>
               <div id="creatorRevealedContainer" class="zoom-container" style="cursor:crosshair">
-                <img id="creatorRevealedImage" class="zoom-image revealed" alt="" />
+                <div class="zoom-wrap">
+                  <img id="creatorRevealedImage" class="zoom-image revealed" alt="" />
+                </div>
               </div>
             </div>
           </div>
