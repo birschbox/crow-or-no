@@ -232,6 +232,10 @@ const zoomOptions      = document.getElementById('zoomOptions');
 const zoomLevelInput   = document.getElementById('zoomLevelInput');
 const zoomOriginXInput = document.getElementById('zoomOriginXInput');
 const zoomOriginYInput = document.getElementById('zoomOriginYInput');
+const zoomPreviewPanels        = document.getElementById('zoomPreviewPanels');
+const creatorZoomImage         = document.getElementById('creatorZoomImage');
+const creatorRevealedImage     = document.getElementById('creatorRevealedImage');
+const creatorRevealedContainer = document.getElementById('creatorRevealedContainer');
 const messageListEl    = document.getElementById('messageList');
 const messageInputEl   = document.getElementById('messageInput');
 const addMessageBtn    = document.getElementById('addMessageBtn');
@@ -295,16 +299,41 @@ function updateContentField() {
 //  ZOOM
 // ======================
 
+function updateZoomPreview(src) {
+  if (!src || !zoomRevealToggle.checked) {
+    zoomPreviewPanels.classList.add('hidden');
+    return;
+  }
+  zoomPreviewPanels.classList.remove('hidden');
+  const x     = (zoomOriginXInput.value !== '' ? zoomOriginXInput.value : 50) + '%';
+  const y     = (zoomOriginYInput.value !== '' ? zoomOriginYInput.value : 50) + '%';
+  const level = parseFloat(zoomLevelInput.value) || 12;
+  creatorZoomImage.style.setProperty('--zoom-x', x);
+  creatorZoomImage.style.setProperty('--zoom-y', y);
+  creatorZoomImage.style.setProperty('--zoom-level', level);
+  creatorZoomImage.src = src;
+  creatorRevealedImage.src = src;
+}
+
 function initZoom() {
   zoomRevealToggle.addEventListener('change', () => {
     zoomOptions.classList.toggle('hidden', !zoomRevealToggle.checked);
+    updateZoomPreview(getActiveContent());
   });
 
   [zoomLevelInput, zoomOriginXInput, zoomOriginYInput].forEach(el =>
     el.addEventListener('input', updatePreview)
   );
 
-  // Click preview image to set zoom origin
+  // Click revealed panel to set zoom origin
+  creatorRevealedContainer.addEventListener('click', (e) => {
+    const rect = creatorRevealedContainer.getBoundingClientRect();
+    zoomOriginXInput.value = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+    zoomOriginYInput.value = Math.round(((e.clientY - rect.top)  / rect.height) * 100);
+    updateZoomPreview(getActiveContent());
+  });
+
+  // Also allow clicking the main preview image
   previewImage.addEventListener('click', (e) => {
     if (currentType !== 'image' || !zoomRevealToggle.checked) return;
     const rect = previewImage.getBoundingClientRect();
@@ -397,17 +426,11 @@ function updatePreview() {
     if (content) {
       previewImage.src = content;
       previewImage.classList.remove('hidden');
-      if (zoomRevealToggle.checked) {
-        previewImage.style.cursor = 'crosshair';
-        const x = zoomOriginXInput.value || 50;
-        const y = zoomOriginYInput.value || 50;
-        previewExplanation.textContent = `Zoom origin: ${x}%, ${y}% — click image to reposition`;
-      } else {
-        previewImage.style.cursor = '';
-      }
+      previewImage.style.cursor = zoomRevealToggle.checked ? 'crosshair' : '';
     } else {
       previewContent.textContent = 'Enter an image URL above to preview';
     }
+    updateZoomPreview(content);
   } else if (currentType === 'audio') {
     if (content) {
       previewAudio.src = content;
@@ -415,6 +438,7 @@ function updatePreview() {
     } else {
       previewContent.textContent = 'Enter an audio URL above to preview';
     }
+    updateZoomPreview('');
   } else if (currentType === 'youtube') {
     const id = content ? extractYouTubeId(content) : null;
     if (id) {
@@ -424,6 +448,9 @@ function updatePreview() {
     } else {
       previewContent.textContent = 'Enter a YouTube URL above to preview';
     }
+    updateZoomPreview('');
+  } else {
+    updateZoomPreview('');
   }
 
   // Explanation
