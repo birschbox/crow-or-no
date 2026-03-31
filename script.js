@@ -356,7 +356,7 @@ function resetAnswerButtons() {
   answerButtons.forEach(btn => {
     btn.classList.remove("correct", "wrong");
   });
-  document.querySelectorAll(".your-answer-label").forEach(el => el.classList.add("hidden"));
+  document.querySelectorAll(".your-answer-label").forEach(el => el.classList.remove("shown"));
 }
 
 function submitAnswer(answer) {
@@ -379,7 +379,7 @@ function submitAnswer(answer) {
     answerButtons.forEach(btn => {
       const btnAnswer = btn.getAttribute("onclick").includes("'crow'") ? "crow" : "no";
       if (btnAnswer === answer) {
-        btn.closest(".btn-wrap")?.querySelector(".your-answer-label")?.classList.remove("hidden");
+        btn.closest(".btn-wrap")?.querySelector(".your-answer-label")?.classList.add("shown");
       }
     });
   }
@@ -668,7 +668,7 @@ async function renderLeaderboard() {
     return `
       <div class="lb-row ${i === 0 ? "lb-top" : ""}${isOwn ? " lb-own" : ""}">
         <span class="lb-rank">#${i + 1}</span>
-        <span class="lb-name">${escapeHtml(e.initials)}${youLabel}</span>
+        <span class="lb-name">ASS${youLabel}</span>
         <span class="lb-score">${e.score}/${activeQuestions.length}</span>
         <span class="lb-time">${formatTime(e.time_secs)}</span>
       </div>
@@ -680,7 +680,7 @@ async function renderLeaderboard() {
       <div class="lb-separator"></div>
       <div class="lb-row lb-own">
         <span class="lb-rank">#${mySubmittedRank}</span>
-        <span class="lb-name">${escapeHtml(mySubmittedEntry.initials)} <span class="lb-you">⬅ You</span></span>
+        <span class="lb-name">ASS <span class="lb-you">⬅ You</span></span>
         <span class="lb-score">${mySubmittedEntry.score}/${activeQuestions.length}</span>
         <span class="lb-time">${formatTime(mySubmittedEntry.time_secs)}</span>
       </div>
